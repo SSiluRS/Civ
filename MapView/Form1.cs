@@ -27,7 +27,15 @@ namespace MapView
 
         private void miniMap1_MapClick(object sender, MapClickEventArgs e)
         {
-            viewPort1.SetLocation(e.Column - viewPort1.ClientSize.Width / 2, e.Row - viewPort1.ClientSize.Height / 2);
+            viewPort1.SetLocation(
+                e.Column * MapRenderer.tileSize,
+                e.Row * MapRenderer.tileSize
+            );
+        }
+
+        private void viewPort1_MapMove(object sender, MapMoveEventArgs e)
+        {
+            miniMap1.MoveRect((320 + e.C) % 320, e.R);
         }
     }
 }

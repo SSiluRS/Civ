@@ -45,7 +45,7 @@ namespace MapView
             {
 
                 var cb = x / tileSize;
-                var rb = y / tileSize;
+                var rb = y / tileSize ;
                 var ce = (x + w) / tileSize;
                 var re = (y + h) / tileSize;
                 var dx = -x % tileSize;
@@ -57,7 +57,8 @@ namespace MapView
                     for (int c = cb; c <= ce; c++)
                     {
                         var xd = (c - cb) * tileSize + dx;
-                        if (GetPixel(c, r).Name == "ff0000ff")
+                        var color = GetPixel(c, r);
+                        if (color.Name == "ff0000ff")
                         {
                             int n0 = CheckTile2(tileKeyI, c - 1, r, c - 1, r - 1, c, r - 1);
                             int n1 = CheckTile2(tileKeyII, c + 1, r, c + 1, r - 1, c, r - 1);
@@ -69,13 +70,13 @@ namespace MapView
                             gv.DrawImage(textures, new Rectangle(xd, yd + 32, tileSize / 2, tileSize / 2), GetTileRectangle(n2, TileType.Ocean), GraphicsUnit.Pixel);
                             gv.DrawImage(textures, new Rectangle(xd + 32, yd + 32, tileSize / 2, tileSize / 2), GetTileRectangle(n3, TileType.Ocean), GraphicsUnit.Pixel);
                         }
-                        else if (GetPixel(c, r).Name == "ff3232ff")
+                        else if (color.Name == "ff3232ff")
                         {
                             int n = CheckTile(c, r, TileType.River);
                             DrawGrass(xd, yd);
                             gv.DrawImage(river, new Rectangle(xd, yd, tileSize, tileSize), GetTileRectangle(n, TileType.River), GraphicsUnit.Pixel);
                         }
-                        else if (GetPixel(c, r).Name == "ff969696")
+                        else if (color.Name == "ff969696")
                         {
                             int n = CheckTile(c, r, TileType.Mountain);
                             DrawGrass(xd, yd);
@@ -84,7 +85,7 @@ namespace MapView
                             gv.DrawImage(mount, dst, src, GraphicsUnit.Pixel);
 
                         }
-                        else
+                        else if (color != Color.Black)
                             DrawGrass(xd, yd);
                         //gv.FillRectangle(GetPixel(c, r).Name == "ff0000ff" ? Brushes.Blue : Brushes.Green, new Rectangle(xd+15,yd+15, 5,5));
                     }
@@ -160,9 +161,9 @@ namespace MapView
         private Color GetPixel(int x, int y)
         {
             var color = new Color();
-            if (y >= map.Height - 1 || y <= 0)
+            if (y > map.Height - 1 || y < 0)
             {
-                color = Color.FromArgb(0, 150, 0);
+                color = Color.Black;
             }
             else
             {

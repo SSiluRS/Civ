@@ -34,6 +34,7 @@
             // 
             // miniMap1
             // 
+            this.miniMap1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.miniMap1.Location = new System.Drawing.Point(476, 651);
             this.miniMap1.Name = "miniMap1";
             this.miniMap1.Size = new System.Drawing.Size(310, 153);
@@ -50,6 +51,7 @@
             this.viewPort1.Size = new System.Drawing.Size(1244, 633);
             this.viewPort1.TabIndex = 19;
             this.viewPort1.Text = "viewPort1";
+            this.viewPort1.MapMove += new System.EventHandler<MapView.MapMoveEventArgs>(this.viewPort1_MapMove);
             // 
             // Form1
             // 
@@ -60,6 +62,7 @@
             this.Controls.Add(this.viewPort1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
 
         }
