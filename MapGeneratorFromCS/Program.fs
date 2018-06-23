@@ -38,7 +38,8 @@ module MapGeneratorFromCS =
 
     let CreateWorldMap = 
         let mg = new MapGenerator()
-        let worldMap = mg.GenerateMap1()
+        //let worldMap = mg.GenerateMap1();
+        let worldMap = mg.LoadMapFromFile(@"D:\Microsoft Visual Studio\Projects\Civ\Civ\ConsoleDebug\bin\Debug\map.sav")
 
         let width = Collections.Array2D.length1 worldMap
         let height = Collections.Array2D.length2 worldMap

@@ -107,30 +107,30 @@ module WorldUpdate =
     let mapHeight = 160
 
     let RowColToN row col = row * mapWidth + col
-    let NToRowCol n w = n % w, n / w
-
+    let NToRowCol n w = (n % w), (n / w)
 
     let getWorldMapCell x y (worldMap:Map<int,LandTerrain>) =
         worldMap.Item (RowColToN y x)
 
     let applyFnToMap fn x y w n =
-        let r, c = NToRowCol n w
+        let c, r = NToRowCol n w
         fn (x + c) (y + r)
 
     let iter2d x y w h fn =
         Seq.init(w*h) (fun n -> applyFnToMap fn x y w n)
 
     let find2d x y w h fn =
-        Seq.tryFindIndex (applyFnToMap fn x y w) (Seq.init(w*h) (fun n -> n))
+        Seq.tryFindIndex (applyFnToMap fn x y w) (Seq.init (w*h) (fun n -> n))
 
     let findCellForCity worldMap =
         let zz x y = 
-            match (getWorldMapCell x y worldMap) with
-            | LandTerrain.GrassLand _ -> true
-            | _ -> false
+            let a = 
+                match (getWorldMapCell x y worldMap) with
+                | LandTerrain.GrassLand _ -> true
+                | _ -> false
+            a
         find2d 0 0 mapWidth mapHeight zz
         
-
     let GetShieldsCount cell happiness =
         match cell with
             | (LandTerrain.Ocean) -> 0
@@ -167,17 +167,18 @@ module WorldUpdate =
             | (LandTerrain.GrassLand _) -> 0
             | _ -> 0
 
-
-    let GetCityCells cellIndex (worldMap:Map<int,LandTerrain>) =
-        let zz2 r c =
+    let GetCityCells cellIndex (worldMap : Map<int,LandTerrain>) =
+        let x, y = NToRowCol cellIndex mapWidth
+        
+        let zz2 c r =
+            let n = RowColToN r c
             if 
-                c = 2 && r = 2 || 
-                c = 0 && r = 0 || c = 0 && r = 4 || 
-                c = 4 && r = 0 || c = 4 && r = 4
+                c = x && r = y || r < 0 || c < 0 ||
+                c = x-2 && r = y-2 || c = x-2 && r = y+2 || 
+                c = x+2 && r = y-2 || c = x+2 && r = y+2
             then None
-            else Some(worldMap.Item (RowColToN r c))
+            else Some(n, worldMap.Item n)
             
-        let x, y = NToRowCol cellIndex 5
         let zz = iter2d (x-2) (y-2) 5 5 zz2 
         Seq.choose (fun n -> n) zz
 
@@ -193,36 +194,56 @@ module WorldUpdate =
 
         if f <> 0 then f else if s <> 0 then s else t
 
-    let GetSortedCityCells cellIndex = 
-        let a = GetCityCells cellIndex
-        let b = Seq.sortWith CellEconomicComparision a
-        Seq.init(5*5) (fun n -> (n, Seq.item n b))
+    let worldMap = MapGeneratorFromCS.MapGeneratorFromCS.CreateWorldMap
     
     let AssignFarmersToCell cellIndex farmerCount =
+        let GetSortedCityCells cellIndex = 
+            let a = GetCityCells cellIndex worldMap
+            let cmp2 t1 t2 = 
+                CellEconomicComparision (snd t1) (snd t2)
+            Seq.sortWith cmp2 a
+
         let a = GetSortedCityCells cellIndex
-        Seq.where (fun n -> 
-                    let n1, n2 = n
-                    n1 < farmerCount) a
+        let b = Seq.take farmerCount a
+        Seq.map (fun n -> Occupation.Farmer (fst n)) b
 
-    let worldMap = MapGeneratorFromCS.MapGeneratorFromCS.CreateWorldMap
+    let GetFarmersYield cellIndex (city: City.City) =
+        let occ = city.occupation
+        
+        let i2c i = 
+            let x,y = NToRowCol i mapWidth
+            getWorldMapCell x y worldMap
 
-    WorldUpdate.AssignFarmersToCell
+        let zz n =
+            match n with
+            | Farmer(i) -> Some(i2c i)
+            | _ -> None
+        let b = (i2c cellIndex) :: (List.map zz occ |> List.choose (fun n -> n))
 
-    let city = 
+        List.map (fun n -> 
+                    let h = Happiness.Neutral
+                    GetShieldsCount n h, GetTradeCount n h, GetFoodCount n h) b
+
+    let createCity cellIndex = 
         { 
             name = "Moscow"; 
             currentlyBuilding = City.CurrentlyBuilding.Nothing;
             production = 0;
             population = 1;
-            occupation = [];
+            occupation = List.ofSeq (AssignFarmersToCell cellIndex 1);
             food = 0;
             building =[];
             happiness = City.Happiness.Neutral;
         }
 
-    let currentWorld = 
+    let createWorld = 
+        let cities = 
+            let c = findCellForCity worldMap
+            match c with
+            | Some(i) -> Map.ofList([(i, createCity i)])
+            | None -> Map.empty
         {
-            worldMap = MapGeneratorFromCS.MapGeneratorFromCS.CreateWorldMap;
+            worldMap = worldMap;
             playerList = 
                 [{
                     name = "Player";
@@ -230,7 +251,7 @@ module WorldUpdate =
                     discoveries = [];
                     taxScience = 50;
                     taxLuxury = 50;
-                    cities = Map.ofList([(10000, city)])
+                    cities = cities
                     currentlyDiscovering = Science.Discovery.Nothing;
                     researchProgress = 0;
                     units = Map.empty;
@@ -240,6 +261,4 @@ module WorldUpdate =
     let UpdateWorld oldWorld = 
         let newWorld = oldWorld
         
-
-
         newWorld

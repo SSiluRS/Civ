@@ -23,11 +23,49 @@ namespace MapGenerator
 
     public class MapGenerator
     {
+        public Biomes[,] LoadMapFromFile (string path)
+        {
+            Biomes[,] map = new Biomes[320,160];
+            using (var s = System.IO.File.Open(path, System.IO.FileMode.Open))
+            using (var b = new System.IO.BinaryReader(s))
+            {
+                var width = map.GetLength(0);
+                var height = map.GetLength(1);
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        map[x, y] = (Biomes)b.ReadInt32();
+                    }
+                }
+            }
+            return map;
+        }
+
         public Biomes[,] GenerateMap1 ()
         {
             return GenerateMap(0.625f, 10, 0.08f, true,true,true, Interpolation.Linear);
         }
 
+        public void GenerateToFile (string path)
+        {
+            var map = GenerateMap1();
+
+            using (var s = System.IO.File.Create(path))
+            using (var b = new System.IO.BinaryWriter(s)) 
+            {
+                var width = map.GetLength(0);
+                var height = map.GetLength(1);
+                
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        b.Write((int)map[x, y]);
+                    }
+                }
+            }
+        }
 
         public Biomes[,] GenerateMap(float persistence, float amplitude, float frequency, bool smoothing, bool random, bool seamless, Interpolation interpolation)
         {
