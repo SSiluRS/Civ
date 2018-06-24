@@ -36,17 +36,17 @@ module MapGeneratorFromCS =
         | Ocean
         | Unknown
 
-    let CreateWorldMap = 
+    let CreateWorldMap fileName = 
         let mg = new MapGenerator()
         //let worldMap = mg.GenerateMap1();
-        let worldMap = mg.LoadMapFromFile(@"D:\Microsoft Visual Studio\Projects\Civ\Civ\ConsoleDebug\bin\Debug\map.sav")
+        let worldMap = mg.LoadMapFromFile(fileName)
 
         let width = Collections.Array2D.length1 worldMap
         let height = Collections.Array2D.length2 worldMap
 
         let GetItem n =
             let cell = worldMap.[n%width,n/width]
-            let convCell = 
+            let convCell =
                 match cell with
                 | Biomes.Ocean -> Ocean
                 | Biomes.Desert -> Desert PlainUpgrades.Nothing
@@ -57,16 +57,11 @@ module MapGeneratorFromCS =
                 | Biomes.Tundra -> Tundra BadTerrainUpgrades.Nothing
                 | Biomes.Grass -> GrassLand PlainUpgrades.Nothing
                 | _ -> Unknown
-
             (n, convCell)
-
-
         let zz = Seq.init (width*height) GetItem
         Map.ofSeq zz
 
     [<EntryPoint>]
     let main argv = 
-
-
-        printfn "%A" CreateWorldMap
+        //printfn "%A" CreateWorldMap
         0 // return an integer exit code

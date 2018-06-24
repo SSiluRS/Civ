@@ -9,7 +9,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MapGeneratorFromCS", "MapGe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDebug", "ConsoleDebug\ConsoleDebug.csproj", "{9FE89747-2F9D-45DE-BDB4-8F1DB7836EAB}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "World2", "World2\World2.fsproj", "{4943BA07-FC90-4B4B-BD81-DC17C9873EDC}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GameModel", "GameModel\GameModel.fsproj", "{4943BA07-FC90-4B4B-BD81-DC17C9873EDC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapView", "MapView\MapView.csproj", "{723386B3-3B4B-4BF4-8261-FDC7F3F697D1}"
 EndProject

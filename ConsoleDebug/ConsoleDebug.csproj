@@ -55,11 +55,7 @@
       <Project>{b2e90905-a457-4c00-ad61-b03611a07e4d}</Project>
       <Name>MapGeneratorFromCS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MapGenerator\MapGenerator.csproj">
-      <Project>{200de3cb-224a-461d-8e28-512048f1d595}</Project>
-      <Name>MapGenerator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\World2\World2.fsproj">
+    <ProjectReference Include="..\GameModel\GameModel.fsproj">
       <Project>{4943ba07-fc90-4b4b-bd81-dc17c9873edc}</Project>
       <Name>World2</Name>
     </ProjectReference>
