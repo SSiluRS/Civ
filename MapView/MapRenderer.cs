@@ -167,7 +167,7 @@ namespace MapView
             }
             else
             {
-                if (x > 319)
+                if (x> 319)
                 {
                     color = map.GetPixel(x - 319, y);
                 }
@@ -177,7 +177,7 @@ namespace MapView
                 }
                 else if (x < 0)
                 {
-                    color = map.GetPixel(319 + x, y);
+                    color = map.GetPixel(map.Width + x, y);
                 }
             }
             return color;

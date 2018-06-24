@@ -16,6 +16,8 @@ namespace MapView
 
         MapRenderer mapRenderer;
 
+        Random rnd;
+
         int x;
         int y;
         int oldX;
@@ -24,15 +26,14 @@ namespace MapView
         int clickY;
         int rX;
         int rY;
-        int cellX;
-        int cellY;
+        int cellC;
+        int cellR;
         bool drawCell = false;
         int oldCellX;
         int oldCellY;
-        Bitmap map;
-
         Pen myPen = new Pen(Color.White, 2);
         Rectangle cell;
+        List<Unit> units;
 
         int tileSize = MapRenderer.tileSize;
 
@@ -40,11 +41,14 @@ namespace MapView
         {
             InitializeComponent();
             this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.Selectable, true);
         }
 
         protected override void OnCreateControl()
         {
             base.OnCreateControl();
+            rnd = new Random();
+            units = CreateUnits();
             if (!this.DesignMode)
                 mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height);
         }
@@ -72,15 +76,46 @@ namespace MapView
             base.OnPaint(pe);
             if (this.DesignMode) return;
 
-
-            var image = mapRenderer.Render(x, y);
+            var image = mapRenderer.Render(x - 1, y);
             pe.Graphics.DrawImageUnscaled(image, 0, 0);
 
-            if (drawCell == true)
+            if (drawCell)
             {
-                cell = new Rectangle(cellX * tileSize - x, cellY * tileSize - y, tileSize, tileSize);
+                cell = new Rectangle(cellC * tileSize - x, cellR * tileSize - y, tileSize, tileSize);
                 pe.Graphics.DrawRectangle(myPen, cell);
             }
+            var unitTiles = new Bitmap("../../Map/unitsS.png");
+            var k = 0;
+            foreach (var u in units)
+            {
+                if (CheckUnit(u))
+                {
+                    var dest = new Rectangle(u.Column * tileSize - x, u.Row * tileSize - y, tileSize, tileSize);
+                    var cst = new Rectangle(u.ImageIndex * tileSize, u.ImageIndex / 20 * tileSize, tileSize, tileSize);
+                    pe.Graphics.DrawImage(unitTiles, dest, cst, GraphicsUnit.Pixel);
+                    k++;
+                }
+            }
+            pe.Graphics.DrawString(k.ToString(), SystemFonts.DefaultFont, Brushes.White, 0, 0);
+        }
+
+        public List<Unit> CreateUnits()
+        {
+            List<Unit> units = new List<Unit>();
+            for (int i = 0; i < 1000; i++)
+            {
+                units.Add(new Unit { Column = rnd.Next(1, 318), Row = rnd.Next(1, 158), ImageIndex = rnd.Next(0, 28) });
+            }
+            return units;
+        }
+
+        public bool CheckUnit(Unit unit)
+        {
+            if (unit.Column > x / tileSize - 1 && unit.Column < (x + this.ClientSize.Width) / tileSize +1 && unit.Row > y / tileSize && unit.Row < (y + this.ClientSize.Height) / tileSize)
+            {
+                return true;
+            }
+            else return false;
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -95,10 +130,10 @@ namespace MapView
             }
             else if (e.Button == MouseButtons.Right)
             {
-                cellX = (x + e.X) / tileSize;
-                cellY = (y + e.Y) / tileSize;
-                oldCellX = cellX;
-                oldCellY = cellY;
+                cellC = (x + e.X) / tileSize;
+                cellR = (y + e.Y) / tileSize;
+                oldCellX = cellC;
+                oldCellY = cellR;
                 drawCell = true;
                 this.Invalidate();
             }
@@ -125,6 +160,64 @@ namespace MapView
             }
         }
 
+        public Unit GetUnit()
+        {
+            Unit _unit = null;
+            foreach (var unit in units)
+            {
+                if (CheckUnit(unit))
+                {
+                    _unit = unit;
+                }
+            }
+            return _unit;
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            int n = SelectUnit();
+            if (n > -1)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.A: units[n].Column -= 1; cellC -= 1; break;
+                    case Keys.D: units[n].Column += 1; cellC += 1; break;
+                    case Keys.W: units[n].Row -= 1; cellR -= 1; break;
+                    case Keys.S: units[n].Row += 1; cellR += 1; break;
+                    case Keys.Q: units[n].Column -= 1; units[n].Row -= 1; cellR -= 1; cellC -= 1; break;
+                    case Keys.E: units[n].Column += 1; units[n].Row -= 1; cellR -= 1; cellC += 1; break;
+                    case Keys.Z: units[n].Column -= 1; units[n].Row += 1; cellR += 1; cellC -= 1; break;
+                    case Keys.C: units[n].Column += 1; units[n].Row += 1; cellR += 1; cellC += 1; break;
+                    default:
+                        break;
+                }
+                if (units[n].Column + 0.5 > (x + this.ClientSize.Width) / tileSize)
+                {
+                    x += tileSize;
+                }
+                if (units[n].Column < x / tileSize)
+                {
+                    x -= tileSize;
+                }
+            }
+            Invalidate();
+        }
+        
+
+        public int SelectUnit()
+        {
+            int currentUnit = -1;
+            for (int i = 0; i < units.Count; i++)
+            {
+                if (cellC == units[i].Column && cellR == units[i].Row)
+                {
+                    currentUnit = i;
+                }
+            }
+            return currentUnit;
+        }
+
         public void SetLocation(int x, int y)
         {
             this.x = x;
@@ -137,5 +230,12 @@ namespace MapView
     {
         public int C { get; set; }
         public int R { get; set; }
+    }
+
+    public class Unit
+    {
+        public int Column { get; set; }
+        public int Row { get; set; }
+        public int ImageIndex { get; set; }
     }
 }
