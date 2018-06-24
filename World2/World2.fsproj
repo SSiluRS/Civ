@@ -52,9 +52,15 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Library1.fs" />
+    <Compile Include="Misc.fs" />
+    <Compile Include="Science.fs" />
+    <Compile Include="Unit.fs" />
+    <Compile Include="City.fs" />
+    <Compile Include="Civilization.fs" />
+    <Compile Include="World.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
+    <Compile Include="Library1.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
