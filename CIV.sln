@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDebug", "ConsoleDebu
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "World2", "World2\World2.fsproj", "{4943BA07-FC90-4B4B-BD81-DC17C9873EDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapView", "MapView\MapView.csproj", "{723386B3-3B4B-4BF4-8261-FDC7F3F697D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{4943BA07-FC90-4B4B-BD81-DC17C9873EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4943BA07-FC90-4B4B-BD81-DC17C9873EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4943BA07-FC90-4B4B-BD81-DC17C9873EDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{723386B3-3B4B-4BF4-8261-FDC7F3F697D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{723386B3-3B4B-4BF4-8261-FDC7F3F697D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{723386B3-3B4B-4BF4-8261-FDC7F3F697D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{723386B3-3B4B-4BF4-8261-FDC7F3F697D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
