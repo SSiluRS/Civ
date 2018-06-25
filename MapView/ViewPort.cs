@@ -13,6 +13,7 @@ namespace MapView
     public partial class ViewPort : Control
     {
         public event EventHandler<MapMoveEventArgs> MapMove;
+        public event EventHandler<CellSelectedEventArgs> CellSelected;
 
         MapRenderer mapRenderer;
 
@@ -34,6 +35,7 @@ namespace MapView
         Pen myPen = new Pen(Color.White, 2);
         Rectangle cell;
         List<Unit> units;
+        GameModel.World.World world;
 
         int tileSize = MapRenderer.tileSize;
 
@@ -135,6 +137,7 @@ namespace MapView
                 oldCellX = cellC;
                 oldCellY = cellR;
                 drawCell = true;
+                CellSelected?.Invoke(this, new CellSelectedEventArgs() { Column = cellC, Row = cellR});
                 this.Invalidate();
             }
         }
@@ -224,6 +227,17 @@ namespace MapView
             this.y = y;
             this.Invalidate();
         }
+
+        public void CreateWorld()
+        {
+            world = GameModel.GameModel.createWorld;
+        }
+    }
+
+    public class CellSelectedEventArgs: EventArgs
+    {
+        public int Column { get; set; }
+        public int Row { get; set; }
     }
 
     public class MapMoveEventArgs : EventArgs
