@@ -1,17 +1,18 @@
-﻿module Unit
+﻿namespace GameModel
+module Unit =
 
-type VeteranStatus =
-    | Regular 
-    | Veteran 
+    type VeteranStatus =
+        | Regular 
+        | Veteran 
 
-type UnitClass =
-    | Settlers
-    | Militia
-    | Phalanx
-    | Chivalery 
-    | Legion
-    | Chariot 
-    | Catapult
-    | Knight 
+    type UnitClass =
+        | Settlers
+        | Militia
+        | Phalanx
+        | Chivalery 
+        | Legion
+        | Chariot 
+        | Catapult
+        | Knight 
  
-type Unit = {unitClass : UnitClass; veteran : VeteranStatus}
+    type Unit = {unitClass : UnitClass; veteran : VeteranStatus}

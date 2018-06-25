@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.4.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -106,6 +107,12 @@
     <Content Include="Map\TER257.PIC_256.gif" />
     <Content Include="Map\Textures.png" />
     <Content Include="Map\Textures1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameModel\GameModel.fsproj">
+      <Project>{4943ba07-fc90-4b4b-bd81-dc17c9873edc}</Project>
+      <Name>GameModel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

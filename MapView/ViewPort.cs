@@ -16,8 +16,6 @@ namespace MapView
 
         MapRenderer mapRenderer;
 
-        Random rnd;
-
         int x;
         int y;
         int oldX;
