@@ -4,7 +4,7 @@ open Civilization
 
 type World = 
     {
-        worldMap: Map<int, LandTerrain>; 
+        worldMap: Map<int*int, LandTerrain>; 
         playerList : Civilization list;
     }
 

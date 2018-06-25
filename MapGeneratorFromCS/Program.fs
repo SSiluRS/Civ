@@ -45,7 +45,8 @@ module MapGeneratorFromCS =
         let height = Collections.Array2D.length2 worldMap
 
         let GetItem n =
-            let cell = worldMap.[n%width,n/width]
+            let c,r = n%width,n/width
+            let cell = worldMap.[c, r]
             let convCell =
                 match cell with
                 | Biomes.Ocean -> Ocean
@@ -57,7 +58,7 @@ module MapGeneratorFromCS =
                 | Biomes.Tundra -> Tundra BadTerrainUpgrades.Nothing
                 | Biomes.Grass -> GrassLand PlainUpgrades.Nothing
                 | _ -> Unknown
-            (n, convCell)
+            ((c,r), convCell)
         let zz = Seq.init (width*height) GetItem
         Map.ofSeq zz
 

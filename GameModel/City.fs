@@ -2,6 +2,7 @@
 open WorldMap
 open MapGeneratorFromCS.MapGeneratorFromCS
 open Misc
+open System.Collections.Generic
 
 type Resource = 
     | Shield //производство
@@ -22,7 +23,7 @@ type CurrentlyBuilding =
     | Nothing
 
 type Occupation =
-    | Farmer of int
+    | Farmer of int*int
     | Scientist
     | TaxCollector
     | Artist
@@ -92,49 +93,45 @@ let CellEconomicComparision cell1 cell2 =
 
     if f <> 0 then f else if s <> 0 then s else t
 
-let GetCityCells cellIndex (worldMap : Map<int,LandTerrain>) =
-    let x, y = NToRowCol cellIndex mapWidth
-        
-    let zz2 c r =
-        let n = RowColToN r c
+let GetCityCells c r (worldMap : Map<int*int,LandTerrain>) =
+    let zz2 c1 r1 =
         if 
-            c = x && r = y || r < 0 || c < 0 ||
-            c = x-2 && r = y-2 || c = x-2 && r = y+2 || 
-            c = x+2 && r = y-2 || c = x+2 && r = y+2
+            c1 = c && r1 = r || r1 < 0 || c1 < 0 ||
+            c1 = c-2 && r1 = r-2 || c1 = c-2 && r1 = r+2 || 
+            c1 = c+2 && r1 = r-2 || c1 = c+2 && r1 = r+2
         then None
-        else Some(n, worldMap.Item n)
+        else Some(KeyValuePair((c1, r1), (worldMap.Item (c,r))))
             
-    let zz = iter2d (x-2) (y-2) 5 5 zz2 
+    let zz = iter2d (c-2) (r-2) 5 5 zz2 
     Seq.choose (fun n -> n) zz
 
-let AssignFarmersToCell cellIndex farmerCount worldMap =
-    let GetSortedCityCells cellIndex = 
-        let a = GetCityCells cellIndex worldMap
-        let cmp2 t1 t2 = 
-            CellEconomicComparision (snd t1) (snd t2)
+let AssignFarmersToCell c r farmerCount worldMap =
+    let GetSortedCityCells c r = 
+        let a = GetCityCells c r worldMap
+        let cmp2 (t1:KeyValuePair<int*int,LandTerrain>) (t2:KeyValuePair<int*int,LandTerrain>) = 
+            CellEconomicComparision t1.Value t2.Value
         Seq.sortWith cmp2 a
 
-    let a = GetSortedCityCells cellIndex
+    let a = GetSortedCityCells c r
     let b = Seq.take farmerCount a
-    Seq.map (fun n -> Occupation.Farmer (fst n)) b
+    Seq.map (fun (n:KeyValuePair<int*int,LandTerrain>) -> Occupation.Farmer (fst n.Key, snd n.Key)) b
 
 let findCellForCity worldMap =
-    let zz x y = 
+    let zz (c,r) = 
         let a = 
-            match (getWorldMapCell x y worldMap) with
+            match (getWorldMapCell worldMap c r) with
             | LandTerrain.GrassLand _ -> true
             | _ -> false
         a
     find2d 0 0 mapWidth mapHeight zz
 
-let GetFarmersYield worldMap cellIndex (city: City) =
+let GetFarmersYield worldMap c r (city: City) =
     let occ = city.occupation
-        
     let zz n =
         match n with
-        | Farmer(i) -> Some(i2c worldMap i)
+        | Farmer(c,r) -> Some(getWorldMapCell worldMap c r)
         | _ -> None
-    let b = (i2c worldMap cellIndex) :: (List.map zz occ |> List.choose (fun n -> n))
+    let b = (getWorldMapCell worldMap c r) :: (List.map zz occ |> List.choose (fun n -> n))
 
     List.map (fun n -> 
                 let h = Happiness.Neutral

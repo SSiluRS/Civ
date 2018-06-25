@@ -5,18 +5,19 @@ module GameModel =
     open World
     open System
     open Unit
+    open WorldMap
 
     let createUnits n =
         let rnd = new Random()
-        Map.ofSeq (Seq.init n (fun n -> ((WorldMap.NToRowCol (rnd.Next (320*160)) 320), {unitClass = Unit.Catapult; veteran = VeteranStatus.Regular})))
+        Map.ofSeq (Seq.init n (fun n -> ((rnd.Next(320), rnd.Next(160)), {unitClass = Unit.Catapult; veteran = VeteranStatus.Regular})))
 
-    let createCity worldMap cellIndex = 
+    let createCity worldMap c r = 
         { 
             name = "Moscow"; 
             currentlyBuilding = City.CurrentlyBuilding.Nothing;
             production = 0;
             population = 1;
-            occupation = List.ofSeq (AssignFarmersToCell cellIndex 1 worldMap);
+            occupation = List.ofSeq (AssignFarmersToCell c r 1 worldMap);
             food = 0;
             building =[];
             happiness = City.Happiness.Neutral;
@@ -26,8 +27,13 @@ module GameModel =
         let worldMap = WorldMap.loadWorld @"map.sav"
         let cities = 
             let c = findCellForCity worldMap
+            let zz i = 
+                let c, r = i%mapWidth, i/mapWidth
+                let z = createCity worldMap c r
+                let a = [((c,r), z)]
+                Map.ofList(a)
             match c with
-            | Some(i) -> Map.ofList([(i, createCity worldMap i)])
+            | Some(i) -> zz i
             | None -> Map.empty
         {
             worldMap = worldMap;

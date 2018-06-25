@@ -19,7 +19,7 @@ namespace ConsoleApp2
             var b = GameModel.GameModel.createWorld;
             foreach (var c in b.playerList[0].cities)
             {
-                var d = City.GetFarmersYield(b.worldMap, c.Key, c.Value);
+                var d = City.GetFarmersYield(b.worldMap, c.Key.Item1, c.Key.Item2, c.Value);
             }
         }
     }
