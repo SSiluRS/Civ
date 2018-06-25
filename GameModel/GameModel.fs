@@ -3,7 +3,13 @@ open City
 
 module GameModel =
     open World
-   
+    open System
+    open Unit
+
+    let createUnits n =
+        let rnd = new Random()
+        Map.ofSeq (Seq.init n (fun n -> ((WorldMap.NToRowCol (rnd.Next (320*160)) 320), {unitClass = Unit.Catapult; veteran = VeteranStatus.Regular})))
+
     let createCity worldMap cellIndex = 
         { 
             name = "Moscow"; 

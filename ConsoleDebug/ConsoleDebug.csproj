@@ -51,13 +51,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GameModel\GameModel.fsproj">
+      <Project>{4943ba07-fc90-4b4b-bd81-dc17c9873edc}</Project>
+      <Name>GameModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MapGeneratorFromCS\MapGeneratorFromCS.fsproj">
       <Project>{b2e90905-a457-4c00-ad61-b03611a07e4d}</Project>
       <Name>MapGeneratorFromCS</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GameModel\GameModel.fsproj">
-      <Project>{4943ba07-fc90-4b4b-bd81-dc17c9873edc}</Project>
-      <Name>World2</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
