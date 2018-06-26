@@ -116,6 +116,9 @@ let AssignFarmersToCell c r farmerCount worldMap =
     let b = Seq.take farmerCount a
     Seq.map (fun (n:KeyValuePair<int*int,LandTerrain>) -> Occupation.Farmer (fst n.Key, snd n.Key)) b
 
+let ChangeOccupation (occupation: Occupation list) n (newOccupation: Occupation) =
+    List.mapi (fun i e -> if i <> n then e else newOccupation) 
+
 let findCellForCity worldMap =
     let zz (c,r) = 
         let a = 
