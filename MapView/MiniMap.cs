@@ -37,7 +37,7 @@ namespace MapView
             set
             {
                 world = value;
-                OnWorldSet();
+                if (world != null) OnWorldSet();
             }
         }
 

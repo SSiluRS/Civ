@@ -85,6 +85,14 @@ namespace MapView
             var image = mapRenderer.Render(x - 1, y);
             pe.Graphics.DrawImageUnscaled(image, 0, 0);
 
+            foreach (var player in world.playerList)
+            {
+                foreach (var city in player.cities)
+                {
+                    pe.Graphics.FillRectangle(Brushes.Gray, new Rectangle(city.Key.Item1 * tileSize - x, city.Key.Item2 * tileSize - y, tileSize, tileSize));
+                }
+            }
+
             if (drawCell)
             {
                 cell = new Rectangle(cellC * tileSize - x, cellR * tileSize - y, tileSize, tileSize);

@@ -42,15 +42,17 @@
             this.miniMap1.Text = "miniMap1";
             this.miniMap1.ViewPortHeigth = 0;
             this.miniMap1.ViewPortWidth = 0;
+            this.miniMap1.World = null;
             this.miniMap1.MapClick += new System.EventHandler<MapView.MapClickEventArgs>(this.miniMap1_MapClick);
             // 
             // viewPort1
             // 
-            this.viewPort1.Location = new System.Drawing.Point(12, 12);
+            this.viewPort1.Location = new System.Drawing.Point(2, 64);
             this.viewPort1.Name = "viewPort1";
             this.viewPort1.Size = new System.Drawing.Size(1244, 633);
             this.viewPort1.TabIndex = 19;
             this.viewPort1.Text = "viewPort1";
+            this.viewPort1.World = null;
             this.viewPort1.MapMove += new System.EventHandler<MapView.MapMoveEventArgs>(this.viewPort1_MapMove);
             this.viewPort1.UnitMove += new System.EventHandler<MapView.UnitMoveEventArgs>(this.viewPort1_UnitMove);
             this.viewPort1.CellSelected += new System.EventHandler<MapView.CellSelectedEventArgs>(this.viewPort1_CellSelected);

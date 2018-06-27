@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GameModel;
 
 namespace MapView
 {
@@ -17,10 +18,39 @@ namespace MapView
             InitializeComponent();
         }
 
-        internal void SetCity(int c, int r)
+        private GameModel.World.World world;
+
+        public GameModel.World.World World
         {
-            //var mapRender = new MapRenderer(5 * MapRenderer.tileSize, 5 * MapRenderer.tileSize, );
-            //cityMap1.DrawCity(mapRender.Render(c, r));
+            get { return world; }
+            set
+            {
+                world = value;
+            }
+        }
+
+        City.City city;
+
+        public void SetCity(int c, int r)
+        {
+            city = FindCity(c, r);
+            cityMap1.World = world;
+            cityMap1.SetCity(city, c, r);
+        }
+
+        private City.City FindCity(int c, int r)
+        {
+            foreach (var player in world.playerList)
+            {
+                foreach (var city in player.cities)
+                {
+                    if (city.Key.Item1 == c && city.Key.Item2 == r)
+                    {
+                        return city.Value;
+                    }
+                }
+            }
+            return null;
         }
     }
 }
