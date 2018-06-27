@@ -13,11 +13,12 @@ namespace MapView
     public partial class ViewPort : Control
     {
         public event EventHandler<MapMoveEventArgs> MapMove;
+        public event EventHandler<UnitMoveEventArgs> UnitMove;
         public event EventHandler<CellSelectedEventArgs> CellSelected;
 
         MapRenderer mapRenderer;
 
-        Random rnd;
+        Random rnd = new Random();
 
         int x;
         int y;
@@ -36,7 +37,7 @@ namespace MapView
         Rectangle cell;
         List<Unit> units;
         GameModel.World.World world;
-
+        
         int tileSize = MapRenderer.tileSize;
 
         public ViewPort()
@@ -46,15 +47,18 @@ namespace MapView
             this.SetStyle(ControlStyles.Selectable, true);
         }
 
-        protected override void OnCreateControl()
+        public GameModel.World.World World
         {
-            base.OnCreateControl();
-            rnd = new Random();
-            units = CreateUnits();
-            if (!this.DesignMode)
-                mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height);
-        }
+            get => world;
 
+            set
+            {
+                this.world = value;
+                units = CreateUnits();
+                mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height, World);
+                Invalidate();
+            }
+        }
         protected override void OnControlRemoved(ControlEventArgs e)
         {
             base.OnControlRemoved(e);
@@ -62,21 +66,21 @@ namespace MapView
                 mapRenderer.Dispose();
         }
 
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
+        //protected override void OnResize(EventArgs e)
+        //{
+        //    base.OnResize(e);
 
-            if (!this.DesignMode && mapRenderer != null)
-            {
-                mapRenderer.Dispose();
-                mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height);
-            }
-        }
+        //    if (!this.DesignMode && mapRenderer != null)
+        //    {
+        //        mapRenderer.Dispose();
+        //        mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height);
+        //    }
+        //}
 
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
-            if (this.DesignMode) return;
+            if (this.DesignMode || world == null) return;
 
             var image = mapRenderer.Render(x - 1, y);
             pe.Graphics.DrawImageUnscaled(image, 0, 0);
@@ -113,7 +117,7 @@ namespace MapView
 
         public bool CheckUnit(Unit unit)
         {
-            if (unit.Column > x / tileSize - 1 && unit.Column < (x + this.ClientSize.Width) / tileSize +1 && unit.Row > y / tileSize && unit.Row < (y + this.ClientSize.Height) / tileSize)
+            if (unit.Column >= x / tileSize && unit.Column <= (x + this.ClientSize.Width) / tileSize && unit.Row >= y / tileSize && unit.Row <= (y + this.ClientSize.Height) / tileSize)
             {
                 return true;
             }
@@ -178,35 +182,40 @@ namespace MapView
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyDown(e);
-            int n = SelectUnit();
-            if (n > -1)
-            {
-                switch (e.KeyCode)
-                {
-                    case Keys.A: units[n].Column -= 1; cellC -= 1; break;
-                    case Keys.D: units[n].Column += 1; cellC += 1; break;
-                    case Keys.W: units[n].Row -= 1; cellR -= 1; break;
-                    case Keys.S: units[n].Row += 1; cellR += 1; break;
-                    case Keys.Q: units[n].Column -= 1; units[n].Row -= 1; cellR -= 1; cellC -= 1; break;
-                    case Keys.E: units[n].Column += 1; units[n].Row -= 1; cellR -= 1; cellC += 1; break;
-                    case Keys.Z: units[n].Column -= 1; units[n].Row += 1; cellR += 1; cellC -= 1; break;
-                    case Keys.C: units[n].Column += 1; units[n].Row += 1; cellR += 1; cellC += 1; break;
-                    default:
-                        break;
-                }
-                if (units[n].Column + 0.5 > (x + this.ClientSize.Width) / tileSize)
-                {
-                    x += tileSize;
-                }
-                if (units[n].Column < x / tileSize)
-                {
-                    x -= tileSize;
-                }
-            }
+            base.OnKeyDown(e);            
+            UnitMove?.Invoke(this, new UnitMoveEventArgs { Key = e.KeyCode});
             Invalidate();
         }
         
+        public void MoveUnit(int dx, int dy, int n)
+        {
+            units[n].Column += dx;
+            units[n].Row += dy;
+            cellC += dx;
+            cellR += dy;
+
+            int a = 0;
+            if (units[n].Column * tileSize + tileSize > x + this.ClientSize.Width)
+            {
+                a = units[n].Column * tileSize + tileSize - (x + this.ClientSize.Width);
+                x += a;
+            }
+            if (units[n].Column * tileSize < x)
+            {
+                a = units[n].Column * tileSize - x;
+                x += a;
+            }
+            if (units[n].Row * tileSize + tileSize > y + this.ClientSize.Height)
+            {
+                a = units[n].Row * tileSize + tileSize - (y + this.ClientSize.Height);
+                y += a;
+            }
+            if (units[n].Row * tileSize < y)
+            {
+                a = units[n].Row * tileSize - y;
+                y += a;
+            }
+        }
 
         public int SelectUnit()
         {
@@ -227,11 +236,6 @@ namespace MapView
             this.y = y;
             this.Invalidate();
         }
-
-        public void CreateWorld()
-        {
-            world = GameModel.GameModel.createWorld;
-        }
     }
 
     public class CellSelectedEventArgs: EventArgs
@@ -251,5 +255,10 @@ namespace MapView
         public int Column { get; set; }
         public int Row { get; set; }
         public int ImageIndex { get; set; }
+    }
+
+    public class UnitMoveEventArgs : EventArgs
+    {
+        public Keys Key { get; set; }        
     }
 }

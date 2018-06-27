@@ -4,20 +4,23 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using mg = MapGeneratorFromCS;
 
 namespace MapView
 {
     class MapRenderer : IDisposable
     {
-        Bitmap map;
         Bitmap river;
         Bitmap mount;
         Bitmap textures;
         Bitmap vis;
         Graphics gv;
+        GameModel.World.World world;
 
         int w;
         int h;
+        int worldWidth = 320;
+        int worldHeight = 160;
 
         public const int tileSize = 64;
 
@@ -27,12 +30,11 @@ namespace MapView
         int[] tileKeyIV = { 45, 1, 0, 1, 11, 45, 11, 17 };
         int[] riverAndMountainKey = { 0, 4, 2, 6, 1, 5, 3, 7, 8, 12, 10, 14, 9, 13, 11, 15 };
 
-        public MapRenderer(int w, int h)
+        public MapRenderer(int w, int h, GameModel.World.World world)
         {
             this.w = w;
             this.h = h;
-
-            map = new Bitmap(@"../../Map/map.png");
+            this.world = world;
             river = new Bitmap(@"../../Map/RiverS.png");
             mount = new Bitmap(@"../../Map/MountainsS.png");
             textures = new Bitmap(@"../../Map/Textures1.png");
@@ -45,7 +47,7 @@ namespace MapView
             {
 
                 var cb = x / tileSize;
-                var rb = y / tileSize ;
+                var rb = y / tileSize;
                 var ce = (x + w) / tileSize;
                 var re = (y + h) / tileSize;
                 var dx = -x % tileSize;
@@ -58,7 +60,7 @@ namespace MapView
                     {
                         var xd = (c - cb) * tileSize + dx;
                         var color = GetPixel(c, r);
-                        if (color.Name == "ff0000ff")
+                        if (color.IsOcean)
                         {
                             int n0 = CheckTile2(tileKeyI, c - 1, r, c - 1, r - 1, c, r - 1);
                             int n1 = CheckTile2(tileKeyII, c + 1, r, c + 1, r - 1, c, r - 1);
@@ -70,13 +72,13 @@ namespace MapView
                             gv.DrawImage(textures, new Rectangle(xd, yd + 32, tileSize / 2, tileSize / 2), GetTileRectangle(n2, TileType.Ocean), GraphicsUnit.Pixel);
                             gv.DrawImage(textures, new Rectangle(xd + 32, yd + 32, tileSize / 2, tileSize / 2), GetTileRectangle(n3, TileType.Ocean), GraphicsUnit.Pixel);
                         }
-                        else if (color.Name == "ff3232ff")
+                        else if (color.IsRiver)
                         {
                             int n = CheckTile(c, r, TileType.River);
                             DrawGrass(xd, yd);
                             gv.DrawImage(river, new Rectangle(xd, yd, tileSize, tileSize), GetTileRectangle(n, TileType.River), GraphicsUnit.Pixel);
                         }
-                        else if (color.Name == "ff969696")
+                        else if (color.IsMountain)
                         {
                             int n = CheckTile(c, r, TileType.Mountain);
                             DrawGrass(xd, yd);
@@ -85,7 +87,7 @@ namespace MapView
                             gv.DrawImage(mount, dst, src, GraphicsUnit.Pixel);
 
                         }
-                        else if (color != Color.Black)
+                        else
                             DrawGrass(xd, yd);
                         //gv.FillRectangle(GetPixel(c, r).Name == "ff0000ff" ? Brushes.Blue : Brushes.Green, new Rectangle(xd+15,yd+15, 5,5));
                     }
@@ -137,48 +139,51 @@ namespace MapView
         public int CheckTile(int x, int y, TileType tileType)
         {
             int nn;
-            var color = tileType == TileType.River ? "ff3232ff" : "ff969696";
-                var l = GetPixel(x - 1, y).Name == color ? 0b1000 : 0b0;
-                var t = y == 0 || GetPixel(x, y - 1).Name == color ? 0b100 : 0b0;
-                var r = GetPixel(x + 1, y).Name == color ? 0b10 : 0b0;
-                var b = y == map.Height || GetPixel(x, y + 1).Name == color ? 0b1 : 0b0;
-                nn = l | t | r | b;
+            Func<mg.MapGeneratorFromCS.LandTerrain, bool> color =
+                lt => (tileType == TileType.River && lt.IsRiver) || (tileType == TileType.Mountain && lt.IsMountain);
+            var l = color(GetPixel(x - 1, y)) ? 0b1000 : 0b0;
+            var t = y == 0 || color(GetPixel(x, y - 1)) ? 0b100 : 0b0;
+            var r = color(GetPixel(x + 1, y)) ? 0b10 : 0b0;
+            var b = y == worldHeight || color(GetPixel(x, y + 1)) ? 0b1 : 0b0;
+            nn = l | t | r | b;
 
-            return riverAndMountainKey[nn] ;
+            return riverAndMountainKey[nn];
         }
 
         public int CheckTile2(int[] tilek, int x0, int y0, int x1, int y1, int x2, int y2)
         {
-            var p0 = GetPixel(x0, y0).Name != "ff0000ff" ? 0b100 : 0b0;
-            var p1 = GetPixel(x1, y1).Name != "ff0000ff" ? 0b10 : 0b0;
-            var p2 = GetPixel(x2, y2).Name != "ff0000ff" ? 0b1 : 0b0;
+            var color = mg.MapGeneratorFromCS.LandTerrain.Ocean;
+            var p0 = GetPixel(x0, y0) != color ? 0b100 : 0b0;
+            var p1 = GetPixel(x1, y1) != color ? 0b10 : 0b0;
+            var p2 = GetPixel(x2, y2) != color ? 0b1 : 0b0;
 
             return tilek[(p0 | p1 | p2)];
 
         }
 
-
-        private Color GetPixel(int x, int y)
+        private mg.MapGeneratorFromCS.LandTerrain GetPixel(int x, int y)
         {
-            var color = new Color();
-            if (y > map.Height - 1 || y < 0)
+            mg.MapGeneratorFromCS.LandTerrain color;
+            if (y > worldHeight - 1 || y < 0)
             {
-                color = Color.Black;
+                color = mg.MapGeneratorFromCS.LandTerrain.Ocean;
             }
             else
             {
-                if (x >319)
+                if (x > worldWidth - 1)
                 {
-                    color = map.GetPixel(x - map.Width, y);
+                    //color = map.GetPixel(x - map.Width, y);
+                    color = world.worldMap[new Tuple<int, int>(x - worldWidth, y)];
                 }
-                else if (x >= 0 && x <= 319)
+                else if (x >= 0 && x <= worldWidth - 1)
                 {
-                    color = map.GetPixel(x, y);
+                    color = world.worldMap[new Tuple<int, int>(x, y)];
                 }
                 else if (x < 0)
                 {
-                    color = map.GetPixel(x + map.Width, y);
+                    color = world.worldMap[new Tuple<int, int>(x + worldWidth, y)];
                 }
+                else color = null;
             }
             return color;
         }
@@ -187,7 +192,6 @@ namespace MapView
         {
             gv.Dispose();
             textures.Dispose();
-            map.Dispose();
         }
     }
 
@@ -197,6 +201,5 @@ namespace MapView
         River,
         Mountain,
         Grass
-        
     }
 }

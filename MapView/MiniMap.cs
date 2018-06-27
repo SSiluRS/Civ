@@ -13,7 +13,6 @@ namespace MapView
     public partial class MiniMap : Control
     {
         Bitmap map;
-        string fileName = "../../Map/map.png";
         Pen myPen = new Pen(Color.White, 2);
         public event EventHandler<MapClickEventArgs> MapClick;
 
@@ -30,10 +29,38 @@ namespace MapView
             this.Cursor = Cursors.Hand;
         }
 
+        private GameModel.World.World world;
+
+        public GameModel.World.World World
+        {
+            get { return world; }
+            set
+            {
+                world = value;
+                OnWorldSet();
+            }
+        }
+
+        private void OnWorldSet()
+        {
+            map = new Bitmap(320, 160);
+            foreach (var p in world.worldMap)
+            {
+                Color c;
+                if (p.Value.IsOcean)
+                    c = Color.DarkBlue;
+                else if (p.Value.IsDesert)
+                    c = Color.Yellow;
+                else c = Color.DarkGreen;
+                map.SetPixel(p.Key.Item1, p.Key.Item2, c);
+            }
+            Invalidate();
+        }
+
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
-            if (!this.DesignMode)
+            if (!this.DesignMode && map != null)
             {
                 pe.Graphics.DrawImage(map, 0, 0, this.ClientSize.Width, this.ClientSize.Height);
                 var vpRect = new Rectangle((int)w2mx(vpX), (int)w2my(vpY), (int)w2mx(ViewPortWidth), (int)w2my(ViewPortHeigth));
@@ -41,28 +68,11 @@ namespace MapView
             }
         }
 
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
-            if (this.DesignMode) return;
-            map = new Bitmap(fileName);
-        }
-
         protected override void OnControlRemoved(ControlEventArgs e)
         {
             base.OnControlRemoved(e);
             if (!this.DesignMode)
             map.Dispose();
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            if (map != null && !this.DesignMode)
-            {
-                map.Dispose();
-                map = new Bitmap(fileName);
-            }
         }
 
         double w2mx(double x) { return x * (double)this.ClientSize.Width / (double)map.Width; }
@@ -86,6 +96,13 @@ namespace MapView
             vpX = c;
             vpY = r;
             this.Invalidate();
+        }
+
+        public void MoveRectD(int dx, int dy)
+        {
+            vpX += dx;
+            vpY += dy;
+            Invalidate();
         }
     }
 
