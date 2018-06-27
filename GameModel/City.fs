@@ -44,6 +44,7 @@ module City =
             food : int;
             building : Building list;
             happiness : Happiness;
+            units : Unit list;
         } 
    
     let GetShieldsCount cell happiness =
@@ -101,7 +102,7 @@ module City =
                 c1 = c-2 && r1 = r-2 || c1 = c-2 && r1 = r+2 || 
                 c1 = c+2 && r1 = r-2 || c1 = c+2 && r1 = r+2
             then None
-            else Some(KeyValuePair((c1, r1), (worldMap.Item (c,r))))
+            else Some(KeyValuePair((c1, r1), (worldMap.Item (c1,r1))))
             
         let zz = iter2d (c-2) (r-2) 5 5 zz2 
         Seq.choose (fun n -> n) zz
@@ -133,10 +134,9 @@ module City =
         let occ = city.occupation
         let zz n =
             match n with
-            | Farmer(c,r) -> Some(getWorldMapCell worldMap c r)
+            | Farmer(c1,r1) -> Some(getWorldMapCell worldMap c1 r1)
             | _ -> None
         let b = (getWorldMapCell worldMap c r) :: (List.map zz occ |> List.choose (fun n -> n))
-
         List.map (fun n -> 
                     let h = Happiness.Neutral
                     GetShieldsCount n h, GetTradeCount n h, GetFoodCount n h) b

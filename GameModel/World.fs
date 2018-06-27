@@ -13,6 +13,7 @@ module World =
 
     type World = 
         {
+            unitsCount : int;
             rnd: Random;
             worldMap: Map<int*int, LandTerrain>; 
             playerList : Civilization list;
@@ -27,7 +28,7 @@ module World =
 
     let getUnitLoc (world: World) unit = 
         let zz key (t:UnitPack) =
-            List.contains unit t.units
+            List.exists (fun (n:Unit) -> n.ID = unit.ID) t.units
         Map.findKey zz world.units
 
     let moveUnitBitweenPacks world unit c0 r0 c1 r1 =
@@ -62,7 +63,7 @@ module World =
         let defencerCoords = getUnitLoc world defender
         let attackerCoords = getUnitLoc world attacker
        
-        let map = Map.add defencerCoords (world.units.Item attackerCoords) world.units
+        let map = Map.add defencerCoords {(world.units.Item attackerCoords) with units = [{attacker with movesMade = attacker.movesMade + 1; veteran = VeteranStatus.Veteran}]} world.units
         let map1 = Map.remove attackerCoords map
 
         {
@@ -70,7 +71,6 @@ module World =
         }
 
     let defenderWins (world:World) (attacker:Unit.Unit) (defender:Unit.Unit) =
-        let defencerCoords = getUnitLoc world defender
         let attackerCoords = getUnitLoc world attacker
 
         let map1 = Map.remove attackerCoords world.units
@@ -121,20 +121,16 @@ module World =
             if List.length fromPack.units <> 0 
             then (Map.add (c0,r0) fromPack world.units) 
             else (Map.remove (c0,r0) world.units)
+        let newWorld = { world with units = Map.add (c,r) {toPack with units = {unit with movesMade = unit.movesMade + 1} :: (List.where (fun n -> n <> unit) toPack.units)} map1 }
         match getCellUnits world c r with
         | Some(pack) ->
-            if pack.civilization = (getCivByUnit world unit) then
-                {
-                    world with units = Map.add (c,r) toPack map1
-                }
-                
+            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then world
+            else if pack.civilization = (getCivByUnit world unit) then newWorld 
             else attackMove world unit (world.units.Item (c,r)).units
 
         | None -> 
-                {
-                    world with units = Map.add (c,r) toPack map1                           
-                }
-                
+            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then world
+            else newWorld            
 
     let UpdateWorld oldWorld = 
         let newWorld = oldWorld
