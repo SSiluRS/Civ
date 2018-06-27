@@ -120,6 +120,7 @@ namespace MapGenerator
             int width = noise.GetLength(0), height = noise.GetLength(1);
             var newNoise = new Biomes[width,height];
 
+            //Drawing grass, ocean, mountains
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
@@ -142,11 +143,14 @@ namespace MapGenerator
                 }
             }
 
-            for (int x = 0; x < width; x++) //desert
+            //Drawing desert
+            for (int x = 0; x < width; x++) 
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (noise[x,y] != new Tuple<int, int, int>(0,0,255) && noise[x, y] != new Tuple<int, int, int>(150, 150, 150) && noise[x, y] != new Tuple<int, int, int>(255, 255, 255))
+                    if (newNoise[x,y] != Biomes.Ocean && 
+                        newNoise[x,y] != Biomes.Mountains && 
+                        newNoise[x,y] != Biomes.Snow)
                     {
                         var v = height / 2 - Math.Abs(height / 2 - y);
                         if (rnd.Next(v) > height / 3)
@@ -155,7 +159,8 @@ namespace MapGenerator
                 }
             }
 
-            for (int x = 0; x < width; x++) //rivers
+            //Drawing rivers
+            for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -215,7 +220,8 @@ namespace MapGenerator
                 }
             }
 
-            for (int x = 0; x < width; x++) //Snow
+            //Drawing snow
+            for (int x = 0; x < width; x++) 
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -227,17 +233,19 @@ namespace MapGenerator
                 }
             }
 
-            for (int x = 0; x < width; x++) //Tundra
+            //Drawing tundra
+            for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
                     var v = (y < 3 || y > 156) ? 0 : (y < 40 || y > 120) ? rnd.Next(10) : 0;
-                    if (v != 0 && v < 5 && noise[x, y] == new Tuple<int, int, int>(0, 150, 0))
+                    if (v != 0 && v < 5 && newNoise[x,y] == Biomes.Grass)
                         newNoise[x, y] = Biomes.Tundra;
                 }
             }
 
-            for (int x = 0; x < width; x++) //Forests
+            //Drawing forest
+            for (int x = 0; x < width; x++) 
             {
                 for (int y = 0; y < height; y++)
                 {

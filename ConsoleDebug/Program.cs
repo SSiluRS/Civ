@@ -17,10 +17,11 @@ namespace ConsoleApp2
             var b = World.WorldUpdate.GetSortedCityCells(10000).ToArray();
             var c = World.WorldUpdate.AssignFarmersToCell(10000, 5).ToArray();*/
             var b = GameModel.GameModel.createWorld;
-            foreach (var c in b.playerList[0].cities)
+            var c = GameModel.World.moveUnit(b, b.units[new Tuple<int, int>(0, 0)].units[0], 1, 1);
+            /*foreach (var c in b.playerList[0].cities)
             {
                 var d = City.GetFarmersYield(b.worldMap, c.Key.Item1, c.Key.Item2, c.Value);
-            }
+            }*/
         }
     }
 }

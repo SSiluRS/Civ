@@ -1,4 +1,5 @@
-﻿module WorldMap
+﻿namespace GameModel
+module WorldMap =
     open MapGeneratorFromCS.MapGeneratorFromCS
     open MapGeneratorFromCS
 
