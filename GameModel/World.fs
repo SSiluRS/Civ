@@ -4,6 +4,7 @@ module World =
     open Civilization
     open System
     open Unit
+    open City
     
     type UnitPack = 
         {
@@ -131,6 +132,32 @@ module World =
         | None -> 
             if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then world
             else newWorld            
+
+    let unitMakesCity (world:World) (civ:Civilization) (unit:Unit) =
+        let key = List.findIndex (fun n -> n = civ) world.playerList
+        let c,r = getUnitLoc world unit
+        let city = 
+            { 
+                name = System.DateTime.Now.ToShortTimeString();
+                currentlyBuilding = City.CurrentlyBuilding.Nothing;
+                production = 0;
+                population = 1;
+                occupation = List.ofSeq (AssignFarmersToCell c r 1 world.worldMap);
+                food = 0;
+                building =[];
+                happiness = City.Happiness.Neutral;
+                units = []
+            }
+        let unitPack = (world.units.Item (c,r))
+        let newUnits = 
+            if List.length unitPack.units > 1 
+            then Map.add (c,r) { unitPack with units = List.where (fun n -> n <> unit) unitPack.units } world.units 
+            else Map.remove (c,r) world.units
+        let newCities = Map.add (c,r) city world.playerList.[key].cities
+        let newCiv = {civ with cities = newCities}
+        let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
+        {  world with playerList = newCivs; units = newUnits }
+         
 
     let UpdateWorld oldWorld = 
         let newWorld = oldWorld

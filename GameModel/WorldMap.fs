@@ -8,6 +8,5 @@ module WorldMap =
 
     let getWorldMapCell (worldMap:Map<int*int,LandTerrain>) c r =
         worldMap.Item (c, r)
-    
     let loadWorld file =
         MapGeneratorFromCS.CreateWorldMap file

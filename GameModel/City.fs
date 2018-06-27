@@ -121,7 +121,7 @@ module City =
     let ChangeOccupation (occupation: Occupation list) n (newOccupation: Occupation) =
         List.mapi (fun i e -> if i <> n then e else newOccupation) 
 
-    let findCellForCity worldMap =
+    let findCellForCity2 worldMap =
         let zz (c,r) = 
             let a = 
                 match (getWorldMapCell worldMap c r) with
@@ -129,6 +129,22 @@ module City =
                 | _ -> false
             a
         find2d 0 0 mapWidth mapHeight zz
+
+    let findCellForCity1 worldMap c r =
+        if (getWorldMapCell worldMap c r) <> (LandTerrain.GrassLand PlainUpgrades.Nothing) then None
+        else
+            let zz c r = 
+                if c < 0 || r < 0 || c > 319 || r > 159 then LandTerrain.Unknown else getWorldMapCell worldMap c r
+            let terrains = iter2d (c-2) (r-2) 5 5 zz
+            let grass = Seq.where (fun n -> n = (LandTerrain.GrassLand PlainUpgrades.Nothing)) terrains
+            if Seq.contains LandTerrain.Ocean terrains && Seq.length grass >= 3 
+            then Some(c, r) 
+            else None
+        
+    let findCellForCity worldMap =
+        let a = iter2d 0 0 mapWidth mapHeight (findCellForCity1 worldMap)
+        let b = Seq.choose (fun n -> n) a
+        if Seq.length b >= 1 then Some(Seq.item 0 b) else None
 
     let GetFarmersYield worldMap c r (city: City) =
         let occ = city.occupation

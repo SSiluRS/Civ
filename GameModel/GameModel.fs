@@ -61,15 +61,16 @@ module GameModel =
 
     let createWorld1 = 
         let worldMap = WorldMap.loadWorld @"map.sav"
-        let cities = 
-            let c = findCellForCity worldMap
-            let zz i = 
-                let c, r = i%mapWidth, i/mapWidth
+        let cities =
+            //let a = Seq.init 51000 (fun n -> findCellForCity1 worldMap 160 80)
+            let c = findCellForCity1 worldMap 100 1
+            let zz (c,r) = 
+                //let c, r = i%mapWidth, i/mapWidth
                 let z = createCity worldMap c r
                 let a = [((c,r), z)]
                 Map.ofList(a)
             match c with
-            | Some(i) -> zz i
+            | Some(c,r) -> zz (c,r)
             | None -> Map.empty
 
         let playerList =
@@ -89,7 +90,7 @@ module GameModel =
                     discoveries = [];
                     taxScience = 50;
                     taxLuxury = 50;
-                    cities = cities
+                    cities = Map.empty
                     currentlyDiscovering = Science.Discovery.Nothing;
                     researchProgress = 0;
                 }]
