@@ -18,18 +18,18 @@ namespace MapView
         //int worldY;
         private int worldX;
 
-        public int WorldX
-        {
-            get { return worldX; }
-            set { worldX = value; }
-        }
+        //public int WorldX
+        //{
+        //    get { return worldX; }
+        //    set { worldX = value; }
+        //}
         private int worldY;
 
-        public int WorldY
-        {
-            get { return worldY; }
-            set { worldY = value; }
-        }
+        //public int WorldY
+        //{
+        //    get { return worldY; }
+        //    set { worldY = value; }
+        //}
 
 
 
@@ -41,7 +41,7 @@ namespace MapView
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            viewPort1.World = world;
+            viewPort1.SetWorld(world);
             miniMap1.World = world;
             miniMap1.ViewPortWidth = viewPort1.ClientSize.Width / MapRenderer.tileSize;
             miniMap1.ViewPortHeigth = viewPort1.ClientSize.Height / MapRenderer.tileSize;
@@ -49,11 +49,11 @@ namespace MapView
 
         private void miniMap1_MapClick(object sender, MapClickEventArgs e)
         {
-            WorldX = e.Column * MapRenderer.tileSize;
-            WorldY = e.Row * MapRenderer.tileSize;
+            worldX = e.Column * MapRenderer.tileSize;
+            worldY = e.Row * MapRenderer.tileSize;
             viewPort1.SetLocation(
                 worldX,
-                worldX
+                worldY
             );
         }
 
@@ -75,45 +75,6 @@ namespace MapView
             UnitMove(e.Key);
         }
 
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    base.OnPaint(e);
-        //    var dev = new Bitmap("DevelopmentS.png");
-        //    var foodCount = 1;
-        //    var productionCount = 2;
-        //    var tradeCount = 1;
-        //    var totalCount = foodCount + productionCount + tradeCount;
-        //    var secondRow = totalCount / 2;
-        //    var firstRow = totalCount - secondRow;
-        //    var n = -1;
-        //    for (int l = 0; l < 2; l++)
-        //    {
-        //        var rcount = (l == 0 ? firstRow : secondRow);
-        //        for (int i = 0; i < rcount; i++)
-        //        {
-        //            if (foodCount > 0)
-        //            {
-        //                foodCount--;
-        //                n = 0;
-        //            }
-        //            else if (productionCount > 0)
-        //            {
-        //                productionCount--;
-        //                n = 1;
-        //            }
-        //            else
-        //            {
-        //                tradeCount--;
-        //                n = 2;
-        //            }
-        //            var rsize = rcount * 64;
-        //            var dest = new Rectangle(i * (MapRenderer.tileSize - 32) / (rcount - 1), l * 32, 32, 32);
-        //            var src = new Rectangle(n * 16, 0, 16, 16);
-        //            e.Graphics.DrawImage(dev, dest, src, GraphicsUnit.Pixel);
-        //        }
-        //    }
-        //    e.Graphics.DrawRectangle(Pens.Red, 0, 0, 64, 64);
-        //}
 
         public void UnitMove(Keys key)
         {
@@ -138,9 +99,6 @@ namespace MapView
                 viewPort1.MoveUnit(dx, dy, n);
                 //miniMap1.MoveRectD(dx, dy);
             }
-
         }
-
-
     }
 }

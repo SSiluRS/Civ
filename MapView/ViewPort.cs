@@ -47,18 +47,14 @@ namespace MapView
             this.SetStyle(ControlStyles.Selectable, true);
         }
 
-        public GameModel.World.World World
+        public void SetWorld(GameModel.World.World world)
         {
-            get => world;
-
-            set
-            {
-                this.world = value;
-                units = CreateUnits();
-                mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height, World);
-                Invalidate();
-            }
+            units = CreateUnits();
+            mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height, world);
+            this.world = world;
+            Invalidate();
         }
+
         protected override void OnControlRemoved(ControlEventArgs e)
         {
             base.OnControlRemoved(e);
@@ -66,23 +62,12 @@ namespace MapView
                 mapRenderer.Dispose();
         }
 
-        //protected override void OnResize(EventArgs e)
-        //{
-        //    base.OnResize(e);
-
-        //    if (!this.DesignMode && mapRenderer != null)
-        //    {
-        //        mapRenderer.Dispose();
-        //        mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height);
-        //    }
-        //}
-
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
             if (this.DesignMode || world == null) return;
 
-            var image = mapRenderer.Render(x - 1, y);
+            var image = mapRenderer.Render(x, y);
             pe.Graphics.DrawImageUnscaled(image, 0, 0);
 
             foreach (var player in world.playerList)

@@ -28,34 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.miniMap1 = new MapView.MiniMap();
             this.viewPort1 = new MapView.ViewPort();
+            this.miniMap1 = new MapView.MiniMap();
             this.SuspendLayout();
+            // 
+            // viewPort1
+            // 
+            this.viewPort1.Location = new System.Drawing.Point(12, 12);
+            this.viewPort1.Name = "viewPort1";
+            this.viewPort1.Size = new System.Drawing.Size(1244, 594);
+            this.viewPort1.TabIndex = 0;
+            this.viewPort1.Text = "viewPort1";
+            this.viewPort1.MapMove += new System.EventHandler<MapView.MapMoveEventArgs>(this.viewPort1_MapMove);
+            this.viewPort1.UnitMove += new System.EventHandler<MapView.UnitMoveEventArgs>(this.viewPort1_UnitMove);
+            this.viewPort1.CellSelected += new System.EventHandler<MapView.CellSelectedEventArgs>(this.viewPort1_CellSelected);
             // 
             // miniMap1
             // 
             this.miniMap1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.miniMap1.Location = new System.Drawing.Point(476, 651);
+            this.miniMap1.Location = new System.Drawing.Point(403, 612);
             this.miniMap1.Name = "miniMap1";
-            this.miniMap1.Size = new System.Drawing.Size(310, 153);
-            this.miniMap1.TabIndex = 20;
+            this.miniMap1.Size = new System.Drawing.Size(419, 192);
+            this.miniMap1.TabIndex = 1;
             this.miniMap1.Text = "miniMap1";
             this.miniMap1.ViewPortHeigth = 0;
             this.miniMap1.ViewPortWidth = 0;
             this.miniMap1.World = null;
             this.miniMap1.MapClick += new System.EventHandler<MapView.MapClickEventArgs>(this.miniMap1_MapClick);
-            // 
-            // viewPort1
-            // 
-            this.viewPort1.Location = new System.Drawing.Point(2, 64);
-            this.viewPort1.Name = "viewPort1";
-            this.viewPort1.Size = new System.Drawing.Size(1244, 633);
-            this.viewPort1.TabIndex = 19;
-            this.viewPort1.Text = "viewPort1";
-            this.viewPort1.World = null;
-            this.viewPort1.MapMove += new System.EventHandler<MapView.MapMoveEventArgs>(this.viewPort1_MapMove);
-            this.viewPort1.UnitMove += new System.EventHandler<MapView.UnitMoveEventArgs>(this.viewPort1_UnitMove);
-            this.viewPort1.CellSelected += new System.EventHandler<MapView.CellSelectedEventArgs>(this.viewPort1_CellSelected);
             // 
             // Map
             // 
@@ -72,6 +71,7 @@
         }
 
         #endregion
+
         private ViewPort viewPort1;
         private MiniMap miniMap1;
     }
