@@ -28,20 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.viewPort1 = new MapView.ViewPort();
+            this.UnitsList = new System.Windows.Forms.ListBox();
             this.miniMap1 = new MapView.MiniMap();
+            this.viewPort1 = new MapView.ViewPort();
             this.SuspendLayout();
             // 
-            // viewPort1
+            // UnitsList
             // 
-            this.viewPort1.Location = new System.Drawing.Point(12, 12);
-            this.viewPort1.Name = "viewPort1";
-            this.viewPort1.Size = new System.Drawing.Size(1244, 594);
-            this.viewPort1.TabIndex = 0;
-            this.viewPort1.Text = "viewPort1";
-            this.viewPort1.MapMove += new System.EventHandler<MapView.MapMoveEventArgs>(this.viewPort1_MapMove);
-            this.viewPort1.UnitMove += new System.EventHandler<MapView.UnitMoveEventArgs>(this.viewPort1_UnitMove);
-            this.viewPort1.CellSelected += new System.EventHandler<MapView.CellSelectedEventArgs>(this.viewPort1_CellSelected);
+            this.UnitsList.FormattingEnabled = true;
+            this.UnitsList.Location = new System.Drawing.Point(1039, 644);
+            this.UnitsList.Name = "UnitsList";
+            this.UnitsList.Size = new System.Drawing.Size(120, 95);
+            this.UnitsList.TabIndex = 2;
             // 
             // miniMap1
             // 
@@ -56,16 +54,29 @@
             this.miniMap1.World = null;
             this.miniMap1.MapClick += new System.EventHandler<MapView.MapClickEventArgs>(this.miniMap1_MapClick);
             // 
+            // viewPort1
+            // 
+            this.viewPort1.Location = new System.Drawing.Point(12, 12);
+            this.viewPort1.Name = "viewPort1";
+            this.viewPort1.Size = new System.Drawing.Size(1244, 594);
+            this.viewPort1.TabIndex = 0;
+            this.viewPort1.Text = "viewPort1";
+            this.viewPort1.MapMove += new System.EventHandler<MapView.MapMoveEventArgs>(this.viewPort1_MapMove);
+            this.viewPort1.CellSelected += new System.EventHandler<MapView.CellSelectedEventArgs>(this.viewPort1_CellSelected);
+            // 
             // Map
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 816);
+            this.Controls.Add(this.UnitsList);
             this.Controls.Add(this.miniMap1);
             this.Controls.Add(this.viewPort1);
+            this.KeyPreview = true;
             this.Name = "Map";
             this.Text = "Form1";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Map_KeyDown);
             this.ResumeLayout(false);
 
         }
@@ -74,6 +85,7 @@
 
         private ViewPort viewPort1;
         private MiniMap miniMap1;
+        private System.Windows.Forms.ListBox UnitsList;
     }
 }
 

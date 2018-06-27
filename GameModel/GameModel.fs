@@ -59,7 +59,7 @@ module GameModel =
             units = []
         }
 
-    let createWorld = 
+    let createWorld1 = 
         let worldMap = WorldMap.loadWorld @"map.sav"
         let cities = 
             let c = findCellForCity worldMap
@@ -101,3 +101,5 @@ module GameModel =
             playerList = playerList;
             units = Map.empty
         }        
+    
+    let createWorld = createUnit createWorld1 createWorld1.playerList.[0] UnitClass.Settlers VeteranStatus.Regular 170 80

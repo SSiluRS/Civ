@@ -101,7 +101,7 @@ namespace MapView
                         tradeCount--;
                         n = 2;
                     }
-                    var dest = new Rectangle(farmerC * 64 + i * (MapRenderer.tileSize) / (rcount), farmerR * 64 + l * 32, 32, 32);
+                    var dest = new Rectangle(i * (MapRenderer.tileSize) / (rcount), l * 32, 32, 32);
                     var src = new Rectangle(n * 16, 0, 16, 16);
                     g.DrawImage(dev, dest, src, GraphicsUnit.Pixel);
                 }

@@ -35,21 +35,26 @@ namespace MapView
         int oldCellY;
         Pen myPen = new Pen(Color.White, 2);
         Rectangle cell;
-        List<Unit> units;
         GameModel.World.World world;
-        
+
+        Bitmap unitTiles;
+
         int tileSize = MapRenderer.tileSize;
 
         public ViewPort()
         {
             InitializeComponent();
             this.DoubleBuffered = true;
-            this.SetStyle(ControlStyles.Selectable, true);
+        }
+
+        protected override void OnCreateControl()
+        {
+            if (!DesignMode)
+                unitTiles = new Bitmap("../../Map/unitsS.png");
         }
 
         public void SetWorld(GameModel.World.World world)
-        {
-            units = CreateUnits();
+        {            
             mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height, world);
             this.world = world;
             Invalidate();
@@ -83,34 +88,35 @@ namespace MapView
                 cell = new Rectangle(cellC * tileSize - x, cellR * tileSize - y, tileSize, tileSize);
                 pe.Graphics.DrawRectangle(myPen, cell);
             }
-            var unitTiles = new Bitmap("../../Map/unitsS.png");
             var k = 0;
-            foreach (var u in units)
+            foreach (var u in world.units)
             {
-                if (CheckUnit(u))
+                var c = u.Key.Item1;
+                var r = u.Key.Item2;
+                var unit = u.Value.units.First();
+                if (CheckUnit(c, r))
                 {
-                    var dest = new Rectangle(u.Column * tileSize - x, u.Row * tileSize - y, tileSize, tileSize);
-                    var cst = new Rectangle(u.ImageIndex * tileSize, u.ImageIndex / 20 * tileSize, tileSize, tileSize);
-                    pe.Graphics.DrawImage(unitTiles, dest, cst, GraphicsUnit.Pixel);
+                    var dest = new Rectangle(c * tileSize - x, r * tileSize - y, tileSize, tileSize);
+                    var src = GetUnitImage(unit.unitClass);
+                    pe.Graphics.DrawImage(unitTiles, dest, src, GraphicsUnit.Pixel);
                     k++;
                 }
             }
             pe.Graphics.DrawString(k.ToString(), SystemFonts.DefaultFont, Brushes.White, 0, 0);
         }
 
-        public List<Unit> CreateUnits()
+        Rectangle GetUnitImage(GameModel.Unit.UnitClass uc)
         {
-            List<Unit> units = new List<Unit>();
-            for (int i = 0; i < 1000; i++)
-            {
-                units.Add(new Unit { Column = rnd.Next(1, 318), Row = rnd.Next(1, 158), ImageIndex = rnd.Next(0, 28) });
-            }
-            return units;
+            if (uc.IsSettlers)
+                return new Rectangle(0, 0, 64, 64);
+            else
+                return new Rectangle(64, 0, 64, 64);
         }
 
-        public bool CheckUnit(Unit unit)
+        public bool CheckUnit(int c, int r)
         {
-            if (unit.Column >= x / tileSize && unit.Column <= (x + this.ClientSize.Width) / tileSize && unit.Row >= y / tileSize && unit.Row <= (y + this.ClientSize.Height) / tileSize)
+            if (c >= x / tileSize && c <= (x + this.ClientSize.Width) / tileSize 
+                && r >= y / tileSize && r <= (y + this.ClientSize.Height) / tileSize)
             {
                 return true;
             }
@@ -160,68 +166,81 @@ namespace MapView
             }
         }
 
-        public Unit GetUnit()
-        {
-            Unit _unit = null;
-            foreach (var unit in units)
-            {
-                if (CheckUnit(unit))
-                {
-                    _unit = unit;
-                }
-            }
-            return _unit;
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);            
-            UnitMove?.Invoke(this, new UnitMoveEventArgs { Key = e.KeyCode});
-            Invalidate();
-        }
+        //public Unit GetUnit()
+        //{
+        //    Unit _unit = null;
+        //    foreach (var unit in units)
+        //    {
+        //        if (CheckUnit(unit))
+        //        {
+        //            _unit = unit;
+        //        }
+        //    }
+        //    return _unit;
+        //}
         
-        public void MoveUnit(int dx, int dy, int n)
-        {
-            units[n].Column += dx;
-            units[n].Row += dy;
-            cellC += dx;
-            cellR += dy;
+        //protected override void OnKeyDown(KeyEventArgs e)
+        //{
+        //    base.OnKeyDown(e);            
+        //    UnitMove?.Invoke(this, new UnitMoveEventArgs { Key = e.KeyCode});
+        //    Invalidate();
+        //}
+        
+        //public void MoveUnit(int dx, int dy, int n)
+        //{
+        //    units[n].Column += dx;
+        //    units[n].Row += dy;
+        //    cellC += dx;
+        //    cellR += dy;
 
-            int a = 0;
-            if (units[n].Column * tileSize + tileSize > x + this.ClientSize.Width)
-            {
-                a = units[n].Column * tileSize + tileSize - (x + this.ClientSize.Width);
-                x += a;
-            }
-            if (units[n].Column * tileSize < x)
-            {
-                a = units[n].Column * tileSize - x;
-                x += a;
-            }
-            if (units[n].Row * tileSize + tileSize > y + this.ClientSize.Height)
-            {
-                a = units[n].Row * tileSize + tileSize - (y + this.ClientSize.Height);
-                y += a;
-            }
-            if (units[n].Row * tileSize < y)
-            {
-                a = units[n].Row * tileSize - y;
-                y += a;
-            }
-        }
+        //    int a = 0;
+        //    if (units[n].Column * tileSize + tileSize > x + this.ClientSize.Width)
+        //    {
+        //        a = units[n].Column * tileSize + tileSize - (x + this.ClientSize.Width);
+        //        x += a;
+        //    }
+        //    if (units[n].Column * tileSize < x)
+        //    {
+        //        a = units[n].Column * tileSize - x;
+        //        x += a;
+        //    }
+        //    if (units[n].Row * tileSize + tileSize > y + this.ClientSize.Height)
+        //    {
+        //        a = units[n].Row * tileSize + tileSize - (y + this.ClientSize.Height);
+        //        y += a;
+        //    }
+        //    if (units[n].Row * tileSize < y)
+        //    {
+        //        a = units[n].Row * tileSize - y;
+        //        y += a;
+        //    }
+        //}
 
-        public int SelectUnit()
+        public void MoveUnit()
         {
-            int currentUnit = -1;
-            for (int i = 0; i < units.Count; i++)
+            foreach (var u in world.units)
             {
-                if (cellC == units[i].Column && cellR == units[i].Row)
+                var uc = u.Key.Item1;
+                var ur = u.Key.Item2;
+                if (uc == cellC )
                 {
-                    currentUnit = i;
+                    
                 }
             }
-            return currentUnit;
         }
+
+        //public int SelectUnit()
+        //{
+        //    int currentUnit = -1;
+        //    for (int i = 0; i < units.Count; i++)
+        //    {
+        //        if (cellC == units[i].Column && cellR == units[i].Row)
+        //        {
+        //            currentUnit = i;
+        //        }
+        //    }
+        //    return currentUnit;
+        //}
 
         public void SetLocation(int x, int y)
         {

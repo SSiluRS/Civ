@@ -14,27 +14,11 @@ namespace MapView
     {
         GameModel.World.World world = GameModel.GameModel.createWorld;
 
-        //int worldX;
-        //int worldY;
         private int worldX;
-
-        //public int WorldX
-        //{
-        //    get { return worldX; }
-        //    set { worldX = value; }
-        //}
         private int worldY;
 
-        //public int WorldY
-        //{
-        //    get { return worldY; }
-        //    set { worldY = value; }
-        //}
-
-
-
         public Map()
-        {            
+        {
             InitializeComponent();
         }
 
@@ -64,41 +48,66 @@ namespace MapView
 
         private void viewPort1_CellSelected(object sender, CellSelectedEventArgs e)
         {
-            UI ui = new UI();
-            ui.World = world;
-            ui.SetCity(e.Column, e.Row);
-            ui.ShowDialog();
-        }
-
-        private void viewPort1_UnitMove(object sender, UnitMoveEventArgs e)
-        {
-            UnitMove(e.Key);
-        }
-
-
-        public void UnitMove(Keys key)
-        {
-            int n = viewPort1.SelectUnit();
-            int dx = 0;
-            int dy = 0;
-            if (n > -1)
+            //UI ui = new UI();
+            //ui.World = world;
+            //ui.SetCity(e.Column, e.Row);
+            //ui.ShowDialog();            
+            UnitsList.Items.Clear();
+            foreach (var u in world.units)
             {
-                switch (key)
+                if (e.Column == u.Key.Item1 && e.Row == u.Key.Item2)
                 {
-                    case Keys.A: dx = -1; /*units[n].Column -= 1; cellC -= 1;*/ break;
-                    case Keys.D: dx = 1; /*units[n].Column += 1; cellC += 1;*/ break;
-                    case Keys.W: dy = -1;/*units[n].Row -= 1; cellR -= 1*/ break;
-                    case Keys.S: dy = 1;/*units[n].Row += 1; cellR += 1;*/ break;
-                    case Keys.Q: dx = -1; dy = -1;/*units[n].Column -= 1; units[n].Row -= 1; cellR -= 1; cellC -= 1; */break;
-                    case Keys.E: dx = 1; dy = -1;/*units[n].Column += 1; units[n].Row -= 1; cellR -= 1; cellC += 1; */break;
-                    case Keys.Z: dx = -1; dy = 1;/*units[n].Column -= 1; units[n].Row += 1; cellR += 1; cellC -= 1;*/ break;
-                    case Keys.C: dx = 1; dy = 1;/*units[n].Column += 1; units[n].Row += 1; cellR += 1; cellC += 1;*/ break;
-                    default:
-                        break;
+                    foreach (var unit in u.Value.units)
+                    {
+                        UnitsList.Items.Add(unit);
+                    }
                 }
-                viewPort1.MoveUnit(dx, dy, n);
-                //miniMap1.MoveRectD(dx, dy);
+
             }
         }
+
+
+        private void Map_KeyDown(object sender, KeyEventArgs e)
+        {
+            var u = UnitsList.SelectedItem as GameModel.Unit.Unit;
+            var loc = GameModel.World.getUnitLoc(world, u);
+            UnitMove(e.KeyCode, out var dx, out var dy);
+            this.world = GameModel.World.moveUnit(world, u, loc.Item1 + dx, loc.Item2 + dy);
+            viewPort1.SetWorld(world);
+            miniMap1.World = world;
+        }
+
+
+        public void UnitMove(Keys key, out int dx, out int dy)
+        {
+            dx = 0;
+            dy = 0;
+            switch (key)
+            {
+                case Keys.A: dx = -1; /*units[n].Column -= 1; cellC -= 1;*/ break;
+                case Keys.D: dx = 1; /*units[n].Column += 1; cellC += 1;*/ break;
+                case Keys.W: dy = -1;/*units[n].Row -= 1; cellR -= 1*/ break;
+                case Keys.S: dy = 1;/*units[n].Row += 1; cellR += 1;*/ break;
+                case Keys.Q: dx = -1; dy = -1;/*units[n].Column -= 1; units[n].Row -= 1; cellR -= 1; cellC -= 1; */break;
+                case Keys.E: dx = 1; dy = -1;/*units[n].Column += 1; units[n].Row -= 1; cellR -= 1; cellC += 1; */break;
+                case Keys.Z: dx = -1; dy = 1;/*units[n].Column -= 1; units[n].Row += 1; cellR += 1; cellC -= 1;*/ break;
+                case Keys.C: dx = 1; dy = 1;/*units[n].Column += 1; units[n].Row += 1; cellR += 1; cellC += 1;*/ break;
+                default:
+                    break;
+            }
+            //miniMap1.MoveRectD(dx, dy);
+        }
+
+
+        //public List<Unit> CreateUnits()
+        //{
+        //    List<Unit> units = new List<Unit>();
+        //    for (int i = 0; i < 1000; i++)
+        //    {
+        //        units.Add(new Unit { Column = rnd.Next(1, 318), Row = rnd.Next(1, 158), ImageIndex = rnd.Next(0, 28) });
+        //    }
+        //    return units;
+        //}
     }
 }
+
