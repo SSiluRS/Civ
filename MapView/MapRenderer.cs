@@ -12,6 +12,8 @@ namespace MapView
     {
         Bitmap river;
         Bitmap mount;
+        Bitmap desert;
+        Bitmap snow;
         Bitmap textures;
         Bitmap vis;
         Graphics gv;
@@ -38,6 +40,17 @@ namespace MapView
             river = new Bitmap(@"../../Map/RiverS.png");
             mount = new Bitmap(@"../../Map/MountainsS.png");
             textures = new Bitmap(@"../../Map/Textures1.png");
+            desert = new Bitmap(@"../../Map/DesertS.png");
+            snow = new Bitmap(@"../../Map/SnowS.png");
+        }
+
+        public Rectangle GetOceanRectangle(int n)
+        {
+            int r;
+            int c;
+            r = n / 11;
+            c = n % 11;
+            return new Rectangle(c * 33, r * 33, 32, 32);
         }
 
         public Bitmap Render(int x, int y)
@@ -67,38 +80,48 @@ namespace MapView
                             int n2 = CheckTile2(tileKeyIII, c - 1, r, c - 1, r + 1, c, r + 1);
                             int n3 = CheckTile2(tileKeyIV, c + 1, r, c + 1, r + 1, c, r + 1);
 
-                            gv.DrawImage(textures, new Rectangle(xd, yd, tileSize / 2, tileSize / 2), GetTileRectangle(n0, TileType.Ocean), GraphicsUnit.Pixel);
-                            gv.DrawImage(textures, new Rectangle(xd + 32, yd, tileSize / 2, tileSize / 2), GetTileRectangle(n1, TileType.Ocean), GraphicsUnit.Pixel);
-                            gv.DrawImage(textures, new Rectangle(xd, yd + 32, tileSize / 2, tileSize / 2), GetTileRectangle(n2, TileType.Ocean), GraphicsUnit.Pixel);
-                            gv.DrawImage(textures, new Rectangle(xd + 32, yd + 32, tileSize / 2, tileSize / 2), GetTileRectangle(n3, TileType.Ocean), GraphicsUnit.Pixel);
-                        }
-                        else if (color.IsRiver)
-                        {
-                            int n = CheckTile(c, r, TileType.River);
-                            DrawGrass(xd, yd);
-                            gv.DrawImage(river, new Rectangle(xd, yd, tileSize, tileSize), GetTileRectangle(n, TileType.River), GraphicsUnit.Pixel);
-                        }
-                        else if (color.IsMountain)
-                        {
-                            int n = CheckTile(c, r, TileType.Mountain);
-                            DrawGrass(xd, yd);
-                            var src = GetTileRectangle(n, TileType.Mountain);
-                            var dst = new Rectangle(xd, yd, tileSize, tileSize);
-                            gv.DrawImage(mount, dst, src, GraphicsUnit.Pixel);
 
+
+                            gv.DrawImage(textures, new Rectangle(xd, yd, tileSize / 2, tileSize / 2), GetOceanRectangle(n0), GraphicsUnit.Pixel);
+                            gv.DrawImage(textures, new Rectangle(xd + 32, yd, tileSize / 2, tileSize / 2), GetOceanRectangle(n1), GraphicsUnit.Pixel);
+                            gv.DrawImage(textures, new Rectangle(xd, yd + 32, tileSize / 2, tileSize / 2), GetOceanRectangle(n2), GraphicsUnit.Pixel);
+                            gv.DrawImage(textures, new Rectangle(xd + 32, yd + 32, tileSize / 2, tileSize / 2), GetOceanRectangle(n3), GraphicsUnit.Pixel);
                         }
                         else
+                        {
                             DrawGrass(xd, yd);
-                        //gv.FillRectangle(GetPixel(c, r).Name == "ff0000ff" ? Brushes.Blue : Brushes.Green, new Rectangle(xd+15,yd+15, 5,5));
+                            Bitmap tiles = null;
+                            int n = -1;
+                            if (color.IsRiver)
+                            {
+                                n = CheckTile(c, r, TileType.River);
+                                tiles = river;
+                            }
+                            else if (color.IsMountain)
+                            {
+                                n = CheckTile(c, r, TileType.Mountain);
+                                tiles = mount;
+                            }
+                            else if (color.IsDesert)
+                            {
+                                n = CheckTile(c, r, TileType.Desert);
+                                tiles = desert;
+                            }
+                            else if (color.IsSnow)
+                            {
+                                n = CheckTile(c, r, TileType.Snow);
+                                tiles = snow;
+                            }
+
+                            var rr = n / 4;
+                            var cc = n % 4;
+                            var src = new Rectangle(cc * tileSize, rr * tileSize, tileSize, tileSize);
+                            var dst = new Rectangle(xd, yd, tileSize, tileSize);
+                            if (n != -1)
+                                gv.DrawImage(tiles, dst, src, GraphicsUnit.Pixel);
+                        }
                     }
                 }
-
-                //for (int i = 0; i < 100; i++)
-                //{
-                //    gv.DrawLine(Pens.Black, i * 64, 0, i * 64, 1000);
-                //    gv.DrawLine(Pens.Black, 0, i * 64, 1000, i * 64);
-
-                //}
                 return vis;
             }
         }
@@ -107,40 +130,18 @@ namespace MapView
         {
             for (int i = 0; i < 4; i++)
             {
-                gv.DrawImage(textures, new Rectangle(xd + (tileSize / 2) * (i % 2), yd + (tileSize / 2) * (i / 2), tileSize / 2, tileSize / 2), GetTileRectangle(12, TileType.Grass), GraphicsUnit.Pixel);
+                gv.DrawImage(textures, new Rectangle(xd + (tileSize / 2) * (i % 2), yd + (tileSize / 2) * (i / 2), tileSize / 2, tileSize / 2), GetOceanRectangle(12), GraphicsUnit.Pixel);
             }
-        }
-
-        public Rectangle GetTileRectangle(int n, TileType tileType)
-        {
-            int r;
-            int c;
-            if (tileType == TileType.River)
-            {
-                r = n / 4;
-                c = n % 4;
-                return new Rectangle(c * tileSize, r * tileSize, tileSize, tileSize);
-            }
-            else if (tileType == TileType.Mountain)
-            {
-                r = n / 4;
-                c = n % 4;
-                return new Rectangle(c * tileSize, r * tileSize, tileSize, tileSize);
-            }
-            else
-            {
-                r = n / 11;
-                c = n % 11;
-                return new Rectangle(c * 33, r * 33, 32, 32);
-            }
-
         }
 
         public int CheckTile(int x, int y, TileType tileType)
         {
             int nn;
             Func<mg.MapGeneratorFromCS.LandTerrain, bool> color =
-                lt => (tileType == TileType.River && lt.IsRiver) || (tileType == TileType.Mountain && lt.IsMountain);
+                lt => (tileType == TileType.River && lt.IsRiver)
+                || (tileType == TileType.Mountain && lt.IsMountain)
+                || (tileType == TileType.Desert && lt.IsDesert)
+                || (tileType == TileType.Snow && lt.IsSnow);
             var l = color(GetPixel(x - 1, y)) ? 0b1000 : 0b0;
             var t = y == 0 || color(GetPixel(x, y - 1)) ? 0b100 : 0b0;
             var r = color(GetPixel(x + 1, y)) ? 0b10 : 0b0;
@@ -200,6 +201,8 @@ namespace MapView
         Ocean,
         River,
         Mountain,
-        Grass
+        Grass,
+        Desert,
+        Snow
     }
 }

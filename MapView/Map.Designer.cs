@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.UnitsList = new System.Windows.Forms.ListBox();
             this.miniMap1 = new MapView.MiniMap();
             this.viewPort1 = new MapView.ViewPort();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // UnitsList
@@ -40,6 +42,7 @@
             this.UnitsList.Name = "UnitsList";
             this.UnitsList.Size = new System.Drawing.Size(120, 95);
             this.UnitsList.TabIndex = 2;
+            this.UnitsList.SelectedValueChanged += new System.EventHandler(this.UnitsList_SelectedValueChanged);
             // 
             // miniMap1
             // 
@@ -64,6 +67,12 @@
             this.viewPort1.MapMove += new System.EventHandler<MapView.MapMoveEventArgs>(this.viewPort1_MapMove);
             this.viewPort1.CellSelected += new System.EventHandler<MapView.CellSelectedEventArgs>(this.viewPort1_CellSelected);
             // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 500;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Map
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -86,6 +95,7 @@
         private ViewPort viewPort1;
         private MiniMap miniMap1;
         private System.Windows.Forms.ListBox UnitsList;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

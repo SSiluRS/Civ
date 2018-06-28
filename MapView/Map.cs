@@ -17,6 +17,8 @@ namespace MapView
         private int worldX;
         private int worldY;
 
+        GameModel.Unit.Unit activeUnit = null;
+
         public Map()
         {
             InitializeComponent();
@@ -47,11 +49,7 @@ namespace MapView
         }
 
         private void viewPort1_CellSelected(object sender, CellSelectedEventArgs e)
-        {
-            //UI ui = new UI();
-            //ui.World = world;
-            //ui.SetCity(e.Column, e.Row);
-            //ui.ShowDialog();            
+        {           
             UnitsList.Items.Clear();
             foreach (var u in world.units)
             {
@@ -62,26 +60,51 @@ namespace MapView
                         UnitsList.Items.Add(unit);
                     }
                 }
+            }
+            foreach (var player in world.playerList)
+            {
+                foreach (var city in player.cities)
+                {
+                    if (e.Column == city.Key.Item1 && e.Row == city.Key.Item2)
+                    {
+                        UI ui = new UI();
+                        ui.World = world;
+                        ui.SetCity(e.Column, e.Row);
+                        ui.ShowDialog();                   
 
+                    }
+                }
             }
         }
 
 
         private void Map_KeyDown(object sender, KeyEventArgs e)
         {
-            var u = UnitsList.SelectedItem as GameModel.Unit.Unit;
-            var loc = GameModel.World.getUnitLoc(world, u);
-            UnitMove(e.KeyCode, out var dx, out var dy);
-            //this.world = GameModel.World.moveUnit(world, u, loc.Item1 + dx, loc.Item2 + dy);
-            //viewPort1.SetWorld(world);
-            //miniMap1.World = world;
+            if (activeUnit == null) return;
+            var loc = GameModel.World.getUnitLoc(world, activeUnit);
+            CheckKey(e.KeyCode, out var dx, out var dy, out var command);
+            if (command == Command.Move)
+            {
+                var moveResult = GameModel.World.moveUnit(world, activeUnit, loc.Item1 + dx, loc.Item2 + dy);
+                this.world = moveResult.Item1;
+                activeUnit = moveResult.Item2.Value;
+            }
+            else if (command == Command.BuildCity)
+            {
+                var civ = GameModel.World.getCivByUnit(world, activeUnit);
+                world = GameModel.World.unitMakesCity(world, civ, activeUnit);
+                activeUnit = null;
+            }
+            viewPort1.SetWorld(world);
+            miniMap1.World = world;
         }
 
 
-        public void UnitMove(Keys key, out int dx, out int dy)
+        public void CheckKey(Keys key, out int dx, out int dy, out Command command)
         {
             dx = 0;
             dy = 0;
+            command = Command.Move;
             switch (key)
             {
                 case Keys.A: dx = -1; /*units[n].Column -= 1; cellC -= 1;*/ break;
@@ -92,10 +115,22 @@ namespace MapView
                 case Keys.E: dx = 1; dy = -1;/*units[n].Column += 1; units[n].Row -= 1; cellR -= 1; cellC += 1; */break;
                 case Keys.Z: dx = -1; dy = 1;/*units[n].Column -= 1; units[n].Row += 1; cellR += 1; cellC -= 1;*/ break;
                 case Keys.C: dx = 1; dy = 1;/*units[n].Column += 1; units[n].Row += 1; cellR += 1; cellC += 1;*/ break;
+                case Keys.B: command = Command.BuildCity; break;
                 default:
                     break;
             }
             //miniMap1.MoveRectD(dx, dy);
+        }
+
+        private void UnitsList_SelectedValueChanged(object sender, EventArgs e)
+        {
+            activeUnit = UnitsList.SelectedItem as GameModel.Unit.Unit;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (activeUnit != null)
+                viewPort1.BlinkUnit(activeUnit);
         }
 
 
@@ -108,6 +143,16 @@ namespace MapView
         //    }
         //    return units;
         //}
+    }
+
+    public enum Command
+    {
+        Move,
+        BuildCity,
+        BuildRoad,
+        Irrigate,
+        Fortify,
+        Pause
     }
 }
 

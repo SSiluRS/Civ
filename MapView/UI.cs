@@ -36,6 +36,30 @@ namespace MapView
             city = FindCity(c, r);
             cityMap1.World = world;
             cityMap1.SetCity(city, c, r);
+            foodCountLabel.Text = city.food.ToString();
+            var population = city.occupation.Count();
+            var artistCount = 0;
+            var scientistCount = 0;
+            var taxCollectorCount = 0;
+            foreach (var human in city.occupation)
+            {
+                if (human.IsArtist)
+                {
+                    artistCount++; 
+                }
+                if (human.IsScientist)
+                {
+                    scientistCount++;
+                }
+                if (human.IsTaxCollector)
+                {
+                    taxCollectorCount++;
+                }
+            }
+            populationListView.Items.Add("Total popuation:").SubItems.Add(population.ToString());
+            populationListView.Items.Add("Artists:").SubItems.Add(artistCount.ToString());
+            populationListView.Items.Add("Scientists:").SubItems.Add(scientistCount.ToString());
+            populationListView.Items.Add("TaxCollectors:").SubItems.Add(taxCollectorCount.ToString());
         }
 
         private City.City FindCity(int c, int r)
@@ -52,5 +76,6 @@ namespace MapView
             }
             return null;
         }
+
     }
 }

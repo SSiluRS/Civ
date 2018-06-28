@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GameModel;
 
 namespace MapView
 {
@@ -36,6 +37,8 @@ namespace MapView
         Pen myPen = new Pen(Color.White, 2);
         Rectangle cell;
         GameModel.World.World world;
+        bool blink = true;
+        GameModel.Unit.Unit blinkingUnit = null;
 
         Bitmap unitTiles;
 
@@ -93,8 +96,14 @@ namespace MapView
             {
                 var c = u.Key.Item1;
                 var r = u.Key.Item2;
-                var unit = u.Value.units.First();
-                if (CheckUnit(c, r))
+                var unit = 
+                    (
+                        blinkingUnit != null 
+                        ? u.Value.units.FirstOrDefault(uu => uu.ID == blinkingUnit.ID)
+                        : null
+                    ) ?? u.Value.units.First();
+
+                if ((blinkingUnit == null || unit.ID != blinkingUnit.ID || blink) && CheckUnit(c, r))
                 {
                     var dest = new Rectangle(c * tileSize - x, r * tileSize - y, tileSize, tileSize);
                     var src = GetUnitImage(unit.unitClass);
@@ -143,6 +152,13 @@ namespace MapView
                 CellSelected?.Invoke(this, new CellSelectedEventArgs() { Column = cellC, Row = cellR});
                 this.Invalidate();
             }
+        }
+
+        internal void BlinkUnit(GameModel.Unit.Unit blinkingUnit)
+        {
+            this.blinkingUnit = blinkingUnit;
+            this.blink = !this.blink;
+            this.Invalidate();
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -215,20 +231,7 @@ namespace MapView
         //        y += a;
         //    }
         //}
-
-        public void MoveUnit()
-        {
-            foreach (var u in world.units)
-            {
-                var uc = u.Key.Item1;
-                var ur = u.Key.Item2;
-                if (uc == cellC )
-                {
-                    
-                }
-            }
-        }
-
+        
         //public int SelectUnit()
         //{
         //    int currentUnit = -1;

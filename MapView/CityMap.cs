@@ -18,8 +18,6 @@ namespace MapView
         City.City city;
         int r;
         int c;
-        int farmerC;
-        int farmerR;
 
         public CityMap()
         {
@@ -47,21 +45,27 @@ namespace MapView
             var farmList = City.GetFarmersYield(world.worldMap, c, r, city);
             var farmerNumber = -1;
             City.Occupation.Farmer farmer;
-            foreach (var human in city.occupation)
-            {
-                if (human.IsFarmer)
-                {
-                    farmerNumber++;
-                    farmer = human as City.Occupation.Farmer;
-                    farmerC = farmer.Item1;
-                    farmerR = farmer.Item2;
-                }
-                var foodCount = farmList[farmerNumber].Item1;
-                var productionCount = farmList[farmerNumber].Item2;
-                var tradeCount = farmList[farmerNumber].Item3;
-                DrawRecources(c, r, foodCount, productionCount, tradeCount, pe.Graphics, farmerC, farmerR);
-            }
 
+            var farmers = city
+                .occupation
+                .Where(o => o.IsFarmer)
+                .Cast<City.Occupation.Farmer>()
+                .Zip(farmList.Skip(1), Tuple.Create)
+                .ToArray();
+
+            for (int i = 0; i < farmers.Length + 1; i++)
+            {
+                var isCityCell = i == farmers.Length;
+                // if (i == farmers.Length)
+                var f = isCityCell ? farmList[0] : farmers[i].Item2;
+                var foodCount = f.Item1;
+                var productionCount = f.Item2;
+                var tradeCount = f.Item3;
+                var fc = isCityCell ? c : farmers[i].Item1.Item1;
+                var fr = isCityCell ? r : farmers[i].Item1.Item2;
+                DrawRecources(c, r, foodCount, productionCount, tradeCount, pe.Graphics, fc, fr);
+
+            }
         }
 
         public void SetCity(City.City city, int c, int r)
@@ -101,7 +105,9 @@ namespace MapView
                         tradeCount--;
                         n = 2;
                     }
-                    var dest = new Rectangle(i * (MapRenderer.tileSize) / (rcount), l * 32, 32, 32);
+                    var dest = new Rectangle(
+                        i * 32 / (rcount > 1 ? rcount-- : rcount) + (farmerC - (c - 2)) * 64, 
+                        l * 32 + (farmerR - (r - 2)) * 64, 32, 32);
                     var src = new Rectangle(n * 16, 0, 16, 16);
                     g.DrawImage(dev, dest, src, GraphicsUnit.Pixel);
                 }
