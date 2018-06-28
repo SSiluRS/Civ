@@ -4,23 +4,24 @@ module City =
     open MapGeneratorFromCS.MapGeneratorFromCS
     open Misc
     open System.Collections.Generic
+    open Unit
 
     type Resource = 
         | Shield //производство
         | Trade //наука либо деньги
         | Food //увеличение жителей
 
-    type Building =
+    (*type Building =
         | Barrack //Город строит ветеранов
         | Temple //Минус 1 недовольный житель
         | Granary // При увеличении города теряется только половина запасов еды
         | Marketplace // Одна единица торговли превращается в 1,5 единицы денег
         | Palace // Нет коррупции
-        | Library // 1 единица торговли даёт 1,5 единицы науки
+        | Library // 1 единица торговли даёт 1,5 единицы науки*)
         
     type CurrentlyBuilding =
-        | Building of Building
-        | Unit of Unit
+        | Building of Buildings.Building
+        | Unit of UnitClass
         | Nothing
 
     type Occupation =
@@ -42,7 +43,7 @@ module City =
             population : int;
             occupation : Occupation list; //номера квадратов вокруг города, которые обрабатывают фермеры
             food : int;
-            building : Building list;
+            building : Buildings.Building list;
             happiness : Happiness;
             units : Unit list;
         } 
@@ -82,6 +83,22 @@ module City =
             | (LandTerrain.Tundra _) -> 0
             | (LandTerrain.GrassLand _) -> 0
             | _ -> 0
+
+    let costToBuild (currentlyBuilding:CurrentlyBuilding) = 
+        match currentlyBuilding with
+        | Building b -> b.cost
+        | Unit (unit) ->
+            match (unit) with
+            | Settlers -> 40
+            | Militia -> 10
+            | Phalanx -> 20
+            | Chivalery -> 20
+            | Legion -> 20
+            | Chariot -> 40
+            | Catapult -> 40
+            | Knight -> 60
+
+        | Nothing -> 0
 
     let CellEconomicComparision cell1 cell2 =
         let cmp getCount cell1 cell2 =

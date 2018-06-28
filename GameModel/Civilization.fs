@@ -5,11 +5,11 @@ module Civilization =
         {
             name : string; 
             money : int; 
-            discoveries : Science.Discovery list; 
+            discoveries : Science.Advance list; 
             taxScience : int; 
             taxLuxury : int;
             cities : Map<int*int,City.City>;
-            currentlyDiscovering : Science.Discovery;
+            currentlyDiscovering : Science.Advance;
             researchProgress : int;
             unitIDs : int list
         }

@@ -55,6 +55,8 @@
     <Compile Include="WorldMap.fs" />
     <Compile Include="Misc.fs" />
     <Compile Include="Science.fs" />
+    <Compile Include="Buildings.fs" />
+    <Compile Include="Utils.fs" />
     <Compile Include="Unit.fs" />
     <Compile Include="City.fs" />
     <Compile Include="Civilization.fs" />

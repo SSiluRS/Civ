@@ -1,7 +1,7 @@
-﻿namespace MySpace
+﻿namespace GameModel
 open Science 
 open Buildings
-module Program =
+module Utils =
 
     let noRqmnts = List.filter(fun x -> x.requirements = []) allAdvances
     let pr (adv : Advance list) = List.iter (fun (a : Advance) -> printfn "%s" a.name) adv
@@ -28,7 +28,7 @@ module Program =
             | None -> true
         let canBuild2 needs advList =
             List.exists (fun adv -> canBuild needs adv) advList
-        List.choose (fun building -> if (canBuild2 building.technology learnt) then Some(building) else None) allBuildings
+        List.choose (fun building -> if (canBuild2 building.technology learnt) then Some(building) else None) []
 
 
     let learnt = noRqmnts @ [Currency; Writing; Construction; Code_of_Laws]

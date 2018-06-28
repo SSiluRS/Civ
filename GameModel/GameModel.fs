@@ -46,13 +46,13 @@ module GameModel =
 
     let demoUnit (world:World) (playerList : Civilization list) =
         //Map.ofSeq (Seq.init 2 (fun n -> ((n,n), {units = [{unitClass = UnitClass.Catapult; veteran = VeteranStatus.Regular; movesMade = 0; ID = n}]; civilization = playerList.[n]})))
-        let world1 = createUnit world playerList.[0] UnitClass.Catapult VeteranStatus.Regular 0 0
+        let world1 = createUnit world playerList.[0] UnitClass.Catapult VeteranStatus.Regular 160 80
         createUnit world1 playerList.[1] UnitClass.Catapult VeteranStatus.Regular 1 1
 
     let createCity worldMap c r = 
         { 
             name = "Moscow"; 
-            currentlyBuilding = City.CurrentlyBuilding.Nothing;
+            currentlyBuilding = City.CurrentlyBuilding.Unit UnitClass.Settlers;
             production = 0;
             population = 1;
             occupation = List.ofSeq (AssignFarmersToCell c r 4 worldMap);
@@ -81,10 +81,10 @@ module GameModel =
                     name = "Player";
                     money = 0;
                     discoveries = [];
-                    taxScience = 50;
-                    taxLuxury = 50;
+                    taxScience = 33;
+                    taxLuxury = 33;
                     cities = cities
-                    currentlyDiscovering = Science.Discovery.Nothing;
+                    currentlyDiscovering = Science.Alphabet
                     researchProgress = 0;
                     unitIDs = []
                 };
@@ -95,7 +95,7 @@ module GameModel =
                     taxScience = 50;
                     taxLuxury = 50;
                     cities = Map.empty
-                    currentlyDiscovering = Science.Discovery.Nothing;
+                    currentlyDiscovering = Science.Alphabet;
                     researchProgress = 0;
                     unitIDs = []
                 }]

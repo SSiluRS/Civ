@@ -1,4 +1,5 @@
-﻿module Science 
+﻿namespace GameModel
+module Science =
     type Advance = {
         name: string
         requirements: Advance list
@@ -12,7 +13,7 @@
         requirements = []
     }
     let The_Wheel= {
-        name = "The_Wheel"
+        name = "The Wheel"
         requirements = []
     }
     let Ceremonial_Burial = {
