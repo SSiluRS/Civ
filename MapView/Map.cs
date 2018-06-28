@@ -72,9 +72,9 @@ namespace MapView
             var u = UnitsList.SelectedItem as GameModel.Unit.Unit;
             var loc = GameModel.World.getUnitLoc(world, u);
             UnitMove(e.KeyCode, out var dx, out var dy);
-            this.world = GameModel.World.moveUnit(world, u, loc.Item1 + dx, loc.Item2 + dy);
-            viewPort1.SetWorld(world);
-            miniMap1.World = world;
+            //this.world = GameModel.World.moveUnit(world, u, loc.Item1 + dx, loc.Item2 + dy);
+            //viewPort1.SetWorld(world);
+            //miniMap1.World = world;
         }
 
 
