@@ -9,7 +9,6 @@ module World =
     type UnitPack = 
         {
             units : Unit.Unit list
-            civilization : Civilization
         }
 
     type World = 
@@ -34,7 +33,6 @@ module World =
 
     let moveUnitBitweenPacks world unit c0 r0 c1 r1 =
         let packFrom = world.units.Item (c0,r0)
-        let civ = packFrom.civilization
         let packTo = world.units.TryFind (c1,r1)
         let packFrom = 
             {
@@ -49,16 +47,16 @@ module World =
             | None ->
                     {
                         units = [unit]
-                        civilization = civ
                     }
         packFrom, packTo
 
     let getCivByUnit (world:World) unit =
         let zz key (t:UnitPack) =
             List.contains unit t.units
+        let ID = unit.ID
         let key = Map.findKey zz world.units
         let a = world.units.Item key
-        a.civilization
+        List.find (fun (n:Civilization) -> List.contains ID n.unitIDs) world.playerList
 
     let attackerWins (world:World) (attacker:Unit.Unit) (defender:Unit.Unit) =
         let defencerCoords = getUnitLoc world defender
@@ -67,14 +65,22 @@ module World =
         let map = Map.add defencerCoords {(world.units.Item attackerCoords) with units = [{attacker with movesMade = attacker.movesMade + 1; veteran = VeteranStatus.Veteran}]} world.units
         let map1 = Map.remove attackerCoords map
 
-        ({ world with units = map1 }, Some({attacker with movesMade = attacker.movesMade + 1}))
+        let civ = getCivByUnit world defender
+        let newCiv = {civ with unitIDs = List.where (fun n -> n <> defender.ID) civ.unitIDs}
+        let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
+
+        ({ world with units = map1; playerList = newCivs }, Some({attacker with movesMade = attacker.movesMade + 1}))
 
     let defenderWins (world:World) (attacker:Unit.Unit) (defender:Unit.Unit) =
         let attackerCoords = getUnitLoc world attacker
 
         let map1 = Map.remove attackerCoords world.units
 
-        ({ world with units = map1 }, None)
+        let civ = getCivByUnit world attacker
+        let newCiv = {civ with unitIDs = List.where (fun n -> n <> defender.ID) civ.unitIDs}
+        let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
+
+        ({ world with units = map1; playerList = newCivs }, None)
 
     let attackPower (attacker:Unit.Unit) =
         let attack1 = (Unit.getUnitAttack attacker.unitClass) * 10
@@ -122,14 +128,15 @@ module World =
         match getCellUnits world c r with
         | Some(pack) ->
             if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then (world, Some(unit))
-            else if pack.civilization = (getCivByUnit world unit) then newWorld 
+            else if List.length pack.units >= 1 && (getCivByUnit world pack.units.[0]) = (getCivByUnit world unit) || List.length pack.units = 0 then newWorld 
             else attackMove world unit (world.units.Item (c,r)).units
 
         | None -> 
             if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then (world, Some(unit))
             else newWorld            
 
-    let unitMakesCity (world:World) (civ:Civilization) (unit:Unit) =
+    let unitMakesCity (world:World) (unit:Unit) =
+        let civ = getCivByUnit world unit
         let key = List.findIndex (fun n -> n = civ) world.playerList
         let c,r = getUnitLoc world unit
         let city = 
@@ -150,16 +157,31 @@ module World =
             then Map.add (c,r) { unitPack with units = List.where (fun n -> n <> unit) unitPack.units } world.units 
             else Map.remove (c,r) world.units
         let newCities = Map.add (c,r) city world.playerList.[key].cities
-        let newCiv = {civ with cities = newCities}
+        let newCiv = {civ with cities = newCities; unitIDs = List.where (fun n -> n <> unit.ID) civ.unitIDs}
         let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
         {  world with playerList = newCivs; units = newUnits }
          
 
-    let updateCity (world:World) city = 
+    let updateCity (world : World) (city : City) = 
+        let onlyFarmers n =
+            match n with
+            | Farmer _ -> true
+            | _ -> false
+        let farmers = List.where onlyFarmers city.occupation
+
+        let getYield fn farmerList happiness =
+            let production farmer = 
+                match farmer with
+                | Farmer (c,r) -> fn (WorldMap.getWorldMapCell world.worldMap c r) happiness
+                | _ -> 0
+            List.fold (fun acc n -> acc + (production n)) 0 farmerList
+            
+        let shields = getYield GetShieldsCount farmers Happiness.Neutral
+        let trade = getYield GetTradeCount farmers Happiness.Neutral
+        let food = getYield GetFoodCount farmers Happiness.Neutral
 
         city
 
-    let UpdateWorld oldWorld = 
-        //let a = 
-
-        oldWorld
+    let UpdateWorld (world : World) = 
+        let a = List.map (fun n -> {n with cities = (Map.map (fun key n -> updateCity world n) n.cities)}) world.playerList
+        { world with playerList = a }

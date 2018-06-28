@@ -30,15 +30,18 @@ module GameModel =
         let unitPack = 
             {
                 units = unit :: existingUnits
-                civilization = civ
             }
 
         let units = Map.add (c,r) unitPack world.units
         
+        let newCiv = {civ with unitIDs = world.unitsCount :: civ.unitIDs}
+        let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
+
         {
             world with
                 unitsCount = world.unitsCount+1
                 units = units
+                playerList = newCivs
         }
 
     let demoUnit (world:World) (playerList : Civilization list) =
@@ -83,6 +86,7 @@ module GameModel =
                     cities = cities
                     currentlyDiscovering = Science.Discovery.Nothing;
                     researchProgress = 0;
+                    unitIDs = []
                 };
                 {
                     name = "Player2";
@@ -93,6 +97,7 @@ module GameModel =
                     cities = Map.empty
                     currentlyDiscovering = Science.Discovery.Nothing;
                     researchProgress = 0;
+                    unitIDs = []
                 }]
 
         {

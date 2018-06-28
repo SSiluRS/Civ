@@ -11,4 +11,5 @@ module Civilization =
             cities : Map<int*int,City.City>;
             currentlyDiscovering : Science.Discovery;
             researchProgress : int;
+            unitIDs : int list
         }
