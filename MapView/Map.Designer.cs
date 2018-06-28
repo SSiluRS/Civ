@@ -33,6 +33,7 @@
             this.miniMap1 = new MapView.MiniMap();
             this.viewPort1 = new MapView.ViewPort();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // UnitsList
@@ -73,11 +74,22 @@
             this.timer1.Interval = 500;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(34, 685);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(105, 23);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "Следующий ход";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Map
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 816);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.UnitsList);
             this.Controls.Add(this.miniMap1);
             this.Controls.Add(this.viewPort1);
@@ -96,6 +108,7 @@
         private MiniMap miniMap1;
         private System.Windows.Forms.ListBox UnitsList;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Button button1;
     }
 }
 
