@@ -67,18 +67,14 @@ module World =
         let map = Map.add defencerCoords {(world.units.Item attackerCoords) with units = [{attacker with movesMade = attacker.movesMade + 1; veteran = VeteranStatus.Veteran}]} world.units
         let map1 = Map.remove attackerCoords map
 
-        {
-            world with units = map1                       
-        }
+        ({ world with units = map1 }, Some({attacker with movesMade = attacker.movesMade + 1}))
 
     let defenderWins (world:World) (attacker:Unit.Unit) (defender:Unit.Unit) =
         let attackerCoords = getUnitLoc world attacker
 
         let map1 = Map.remove attackerCoords world.units
 
-        {
-            world with units = map1                       
-        }
+        ({ world with units = map1 }, None)
 
     let attackPower (attacker:Unit.Unit) =
         let attack1 = (Unit.getUnitAttack attacker.unitClass) * 10
@@ -122,15 +118,15 @@ module World =
             if List.length fromPack.units <> 0 
             then (Map.add (c0,r0) fromPack world.units) 
             else (Map.remove (c0,r0) world.units)
-        let newWorld = { world with units = Map.add (c,r) {toPack with units = {unit with movesMade = unit.movesMade + 1} :: (List.where (fun n -> n <> unit) toPack.units)} map1 }
+        let newWorld = ({ world with units = Map.add (c,r) {toPack with units = {unit with movesMade = unit.movesMade + 1} :: (List.where (fun n -> n <> unit) toPack.units)} map1 }, Some({unit with movesMade = unit.movesMade + 1}))
         match getCellUnits world c r with
         | Some(pack) ->
-            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then world
+            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then (world, Some(unit))
             else if pack.civilization = (getCivByUnit world unit) then newWorld 
             else attackMove world unit (world.units.Item (c,r)).units
 
         | None -> 
-            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then world
+            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then (world, Some(unit))
             else newWorld            
 
     let unitMakesCity (world:World) (civ:Civilization) (unit:Unit) =
@@ -159,6 +155,11 @@ module World =
         {  world with playerList = newCivs; units = newUnits }
          
 
+    let updateCity (world:World) city = 
+
+        city
+
     let UpdateWorld oldWorld = 
-        let newWorld = oldWorld
-        newWorld
+        //let a = 
+
+        oldWorld
