@@ -242,7 +242,7 @@ module World =
             | _ -> world.unitsCount
 
         //Update current city
-        let newCity = { city with production = production; food = food; population = population; building = buildings; units = units; currentlyBuilding = currentlyBuilding} 
+        let newCity = { city with production = production; food = food; population = population; building = buildings; units = List.map (fun n -> {n with movesMade = 0}) units; currentlyBuilding = currentlyBuilding} 
 
         //Update taxes
         let luxury = civ.taxLuxury
@@ -267,4 +267,5 @@ module World =
         let updateCiv (world : World) (civ: Civilization) =
             Map.fold (fun acc key n -> updateCity acc n) world civ.cities
         let a = List.fold (fun acc n -> updateCiv acc n) world world.playerList
-        a
+        let b = {a with units = Map.map (fun key n -> {n with units = List.map (fun n -> {n with movesMade = 0}) n.units}) a.units}
+        b
