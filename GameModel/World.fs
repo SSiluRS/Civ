@@ -7,6 +7,7 @@ module World =
     open City
     open Science
     open GameModel
+    open Units
     
     type UnitPack = 
         {
@@ -144,7 +145,7 @@ module World =
         let city = 
             { 
                 name = System.DateTime.Now.ToShortTimeString();
-                currentlyBuilding = City.CurrentlyBuilding.Nothing;
+                currentlyBuilding = City.CurrentlyBuilding.TradeGoods;
                 production = 0;
                 population = 1;
                 occupation = List.ofSeq (AssignFarmersToCell c r 1 world.worldMap);
@@ -181,19 +182,6 @@ module World =
         //Get city coordinates
         let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
 
-        let onlyFarmers n =
-            match n with
-            | Farmer _ -> true
-            | _ -> false
-        let farmers = (Farmer cityCoords) :: List.where onlyFarmers city.occupation
-
-        (*let getYield fn farmerList happiness =
-            let production farmer = 
-                match farmer with
-                | Farmer (c,r) -> fn (WorldMap.getWorldMapCell world.worldMap c r) happiness
-                | _ -> 0
-            List.fold (fun acc n -> acc + (production n)) 0 farmerList*)
-            
         //Farmer's yield
         let yieldList = GetFarmersYield  world.worldMap (fst cityCoords) (snd cityCoords) city
         let shields, trade, food = 
@@ -201,9 +189,6 @@ module World =
                                             let a1, a2, a3 = acc
                                             let n1, n2, n3 = n
                                             a1+n1, a2+n2, a3+n3) (0,0,0) yieldList
-        (*let shields = getYield GetShieldsCount farmers Happiness.Neutral
-        let trade = getYield GetTradeCount farmers Happiness.Neutral
-        let food = getYield GetFoodCount farmers Happiness.Neutral*)
 
         //Gain of production
         let production = city.production + shields
@@ -223,6 +208,12 @@ module World =
             | Some (units) -> units.units
             | None -> List.empty
 
+        //Update TradeGoods building
+        let production = 
+            match city.currentlyBuilding with
+            | TradeGoods -> if shields % 2 = 0 then 0 else 1
+            | _ -> production
+
         //Update city units and general unit map
         let units, unitsMap =
             match city.currentlyBuilding with
@@ -235,7 +226,14 @@ module World =
 
 
         //Update currently building
-        let currentlyBuilding = if production >= cost then (Unit UnitClass.Settlers) else city.currentlyBuilding
+        let currentlyBuilding = 
+            if production >= cost 
+            then 
+                match city.currentlyBuilding with
+                | Building b -> CurrentlyBuilding.Building b
+                | Unit u -> CurrentlyBuilding.Unit u
+                | TradeGoods -> CurrentlyBuilding.TradeGoods
+            else city.currentlyBuilding
 
         //Gain of food 
         let food = city.food + food
@@ -294,6 +292,12 @@ module World =
         let money = 100 - luxury - science
 
         let money = trade * money / 100 + civ.money
+     
+        //Update TradeGoods building
+        let money = 
+            match city.currentlyBuilding with
+            | TradeGoods -> shields / 2 + money
+            | _ -> money
 
         let researchProgress = trade * science / 100 + civ.researchProgress
         let researchDestination = 15 + 14 * (List.length  civ.discoveries)

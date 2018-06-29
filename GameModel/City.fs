@@ -4,6 +4,7 @@ module City =
     open MapGeneratorFromCS.MapGeneratorFromCS
     open Misc
     open System.Collections.Generic
+    open Units
     open Unit
 
     type Resource = 
@@ -22,7 +23,7 @@ module City =
     type CurrentlyBuilding =
         | Building of Buildings.Building
         | Unit of UnitClass
-        | Nothing
+        | TradeGoods
 
     type Occupation =
         | Farmer of int*int
@@ -87,18 +88,8 @@ module City =
     let costToBuild (currentlyBuilding:CurrentlyBuilding) = 
         match currentlyBuilding with
         | Building b -> b.cost
-        | Unit (unit) ->
-            match (unit) with
-            | Settlers -> 40
-            | Militia -> 10
-            | Phalanx -> 20
-            | Chivalery -> 20
-            | Legion -> 20
-            | Chariot -> 40
-            | Catapult -> 40
-            | Knight -> 60
-
-        | Nothing -> 0
+        | Unit (u) -> u.cost
+        | TradeGoods -> 2
 
     let CellEconomicComparision cell1 cell2 =
         let cmp getCount cell1 cell2 =
@@ -157,7 +148,8 @@ module City =
             not (List.contains coords a)
 
         let a = GetSortedCityCells c r
-        Farmer (Seq.find (fun n -> checkFarmers n) a).Key
+        if List.length farmers = 20 then Artist
+        else Farmer (Seq.find (fun n -> checkFarmers n) a).Key
 
     let ChangeOccupation (occupation: Occupation list) n (newOccupation: Occupation) =
         List.mapi (fun i e -> if i <> n then e else newOccupation) 

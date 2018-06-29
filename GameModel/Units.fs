@@ -3,7 +3,7 @@ open Science
 module Units =
 
 
-    type Unit = {
+    type UnitClass = {
         name: string
         advance : Advance option
         att : int

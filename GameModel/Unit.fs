@@ -1,11 +1,12 @@
 ﻿namespace GameModel
 module Unit =
+    open Units
 
     type VeteranStatus =
         | Regular 
         | Veteran 
 
-    type UnitClass =
+    (*type UnitClass =
         | Settlers
         | Militia
         | Phalanx
@@ -13,9 +14,8 @@ module Unit =
         | Legion
         | Chariot 
         | Catapult
-        | Knight 
+        | Knight *)
  
-    [<StructuredFormatDisplay("{unitClass}")>]
     type Unit = 
         {
             unitClass : UnitClass; 
@@ -25,37 +25,13 @@ module Unit =
         }
 
     let getUnitMovement unitClass =
-        match unitClass with
-        | UnitClass.Settlers ->  10
-        | UnitClass.Militia ->   1
-        | UnitClass.Phalanx ->   1
-        | UnitClass.Chivalery -> 2
-        | UnitClass.Legion ->    1
-        | UnitClass.Chariot ->   2
-        | UnitClass.Catapult ->  1
-        | UnitClass.Knight ->    2
+        unitClass.mov
 
     let getUnitAttack unitClass =
-        match unitClass with
-        | UnitClass.Settlers ->  0
-        | UnitClass.Militia ->   1
-        | UnitClass.Phalanx ->   1
-        | UnitClass.Chivalery -> 2
-        | UnitClass.Legion ->    3
-        | UnitClass.Chariot ->   4
-        | UnitClass.Catapult ->  6
-        | UnitClass.Knight ->    4
+        unitClass.att
 
     let getUnitDefence unitClass =
-        match unitClass with
-        | UnitClass.Settlers ->  1
-        | UnitClass.Militia ->   1
-        | UnitClass.Phalanx ->   2
-        | UnitClass.Chivalery -> 1
-        | UnitClass.Legion ->    1
-        | UnitClass.Chariot ->   1
-        | UnitClass.Catapult ->  1
-        | UnitClass.Knight ->    2
+        unitClass.def
 
     let promoteUnit unit = 
         { unit with veteran = Veteran}

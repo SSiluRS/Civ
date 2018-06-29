@@ -7,7 +7,7 @@ module Utils =
     let noRqmnts = List.filter(fun x -> x.requirements = []) allAdvances
     let prA (adv : Advance list) = List.iter (fun (a : Advance) -> printfn "%s" a.name) adv
     let prB bld = List.iter (fun (b : Building) -> printfn "%s" b.name) bld
-    let prU (unit : Unit list) = List.iter (fun (u : Unit) -> printfn "%s" u.name) unit
+    let prU (unit : UnitClass list) = List.iter (fun (u : UnitClass) -> printfn "%s" u.name) unit
     
     let canLearn requirements learnt =
         List.forall (fun x -> List.contains x learnt) requirements
