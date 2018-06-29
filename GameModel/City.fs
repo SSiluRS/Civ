@@ -196,4 +196,8 @@ module City =
         let b = (getWorldMapCell worldMap c r) :: (List.map zz occ |> List.choose (fun n -> n))
         List.map (fun n -> 
                     let h = Happiness.Neutral
-                    GetShieldsCount n h, GetTradeCount n h, GetFoodCount n h) b
+                    let shields = (if n = b.[0] && GetShieldsCount n h = 0 then 1 else GetShieldsCount n h)
+                    let trade = (if n = b.[0] && GetTradeCount n h = 0 then 1 else GetTradeCount n h)
+                    let food = (if n = b.[0] && GetFoodCount n h <= 1 then 2 else GetFoodCount n h)
+                    shields, trade, food
+                )
