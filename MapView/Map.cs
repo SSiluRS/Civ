@@ -83,20 +83,19 @@ namespace MapView
             if (activeUnit == null) return;
             var loc = GameModel.World.getUnitLoc(world, activeUnit);
             CheckKey(e.KeyCode, out var dx, out var dy, out var command);
+
             if (command == Command.Move)
             {
                 var moveResult = GameModel.World.moveUnit(world, activeUnit, loc.Item1 + dx, loc.Item2 + dy);
-                this.world = moveResult.Item1;
+                UpdateWorld(moveResult.Item1);
                 activeUnit = moveResult.Item2.Value;
             }
             else if (command == Command.BuildCity)
             {
                 var civ = GameModel.World.getCivByUnit(world, activeUnit);
-                world = GameModel.World.unitMakesCity(world, civ, activeUnit);
+                UpdateWorld(GameModel.World.unitMakesCity(world, activeUnit));
                 activeUnit = null;
             }
-            viewPort1.SetWorld(world);
-            miniMap1.World = world;
         }
 
 
@@ -133,6 +132,17 @@ namespace MapView
                 viewPort1.BlinkUnit(activeUnit);
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            UpdateWorld(GameModel.World.UpdateWorld(world));
+        }
+
+        public void UpdateWorld(GameModel.World.World world)
+        {
+            this.world = world;
+            viewPort1.SetWorld(world);
+            miniMap1.World = world;
+        }
 
         //public List<Unit> CreateUnits()
         //{
