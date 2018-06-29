@@ -163,6 +163,9 @@ module World =
         {  world with playerList = newCivs; units = newUnits }
          
 
+    let researchLeft (civ: Civilization) =
+        15 + 14 * (List.length  civ.discoveries)
+
     let updateCity (world : World) (city : City) = 
         //Get city civilization
         let civ = List.find (fun (n:Civilization) -> (Map.tryFindKey (fun key n -> n = city) n.cities).IsSome) world.playerList
@@ -194,11 +197,12 @@ module World =
         //Update city buildings
         let buildings = 
             match city.currentlyBuilding with
-            | Building (b) -> if production > cost then b :: city.building else city.building
+            | Building (b) -> if production >= cost then b :: city.building else city.building
             | _ -> city.building
             
         //Get city coordinates
         let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
+
         //Get existing units in city cell
         let unitsInCell = 
             match (Map.tryFind cityCoords world.units) with
@@ -209,56 +213,91 @@ module World =
         let units, unitsMap =
             match city.currentlyBuilding with
             | Unit (u) ->
-                    let unit = {unitClass = u; veteran = Regular; movesMade = 0; ID = world.unitsCount} 
-                    (unit :: city.units), (Map.add cityCoords {units = unit :: unitsInCell} world.units )
+                    let unit = {unitClass = u; veteran = Regular; movesMade = 0; ID = world.unitsCount}
+                    if production >= cost 
+                    then (unit :: city.units), (Map.add cityCoords {units = unit :: unitsInCell} world.units )
+                    else city.units, world.units
             | _ -> (city.units, world.units)
 
 
         //Update currently building
         let currentlyBuilding = if production >= cost then (Unit UnitClass.Settlers) else city.currentlyBuilding
 
-        //Update production
-        let production = if production >= cost then production - cost else production
-
         //Gain of food 
         let food = city.food + food
 
+        let foodDestination = 10
+
         //Update population
-        let population = if (food >= 100) then city.population + 1 else city.population
+        let population = if (food >= foodDestination) then city.population + 1 else city.population
+
+        //Update farmers
+        let newOccupation = if (food >= foodDestination) then Some(AddNewFarmerToCity (fst cityCoords) (snd cityCoords) city.occupation world.worldMap) else None
 
         //Update food amount
-        let food = if (food >= 100) then city.food - 100 else food
+        let food = if (food >= foodDestination) then food - foodDestination else food
         
         //Update civlization's units ID's list
         let unitIDs = 
             match city.currentlyBuilding with
-            | Unit _ -> world.unitsCount :: civ.unitIDs
+            | Unit _ -> 
+                        if production >= cost 
+                        then world.unitsCount :: civ.unitIDs
+                        else civ.unitIDs
             | _ -> civ.unitIDs
 
         //Update amount of units ever existed
         let unitsCount = 
             match city.currentlyBuilding with
-            | Unit _ -> world.unitsCount + 1
+            | Unit _ -> 
+                        if production >= cost
+                        then world.unitsCount + 1
+                        else world.unitsCount
             | _ -> world.unitsCount
 
+        //Update production
+        let production = if production >= cost then production - cost else production
+
         //Update current city
-        let newCity = { city with production = production; food = food; population = population; building = buildings; units = List.map (fun n -> {n with movesMade = 0}) units; currentlyBuilding = currentlyBuilding} 
+        let newCity = 
+            { 
+                city with 
+                    production = production; 
+                    food = food; 
+                    population = population; 
+                    building = buildings; 
+                    units = List.map (fun n -> {n with movesMade = 0}) units; 
+                    currentlyBuilding = currentlyBuilding; 
+                    occupation = 
+                        match newOccupation with
+                        | Some(o) -> o :: city.occupation
+                        | None -> city.occupation
+            }
 
         //Update taxes
         let luxury = civ.taxLuxury
         let science = civ.taxScience
         let money = 100 - luxury - science
 
-        let money = trade * money / 100
+        let money = trade * money / 100 + civ.money
 
         let researchProgress = trade * science / 100 + civ.researchProgress
-        let researchDestination = 5
+        let researchDestination = 15 + 14 * (List.length  civ.discoveries)
         let discoveries = if (researchProgress >= researchDestination) then civ.currentlyDiscovering :: civ.discoveries else civ.discoveries
         let currentlyDiscovering = if (researchProgress >= researchDestination) then (Utils.allowed discoveries).[0] else civ.currentlyDiscovering
         let researchProgress = if (researchProgress >= researchDestination) then researchProgress - researchDestination else researchProgress
 
         //Update civilizations
-        let newCiv = { civ with cities = Map.add cityCoords newCity civ.cities; unitIDs = unitIDs; money = civ.money + money; researchProgress = researchProgress; discoveries = discoveries; currentlyDiscovering = currentlyDiscovering;}
+        let newCiv = 
+                { 
+                    civ with 
+                        cities = Map.add cityCoords newCity civ.cities; 
+                        unitIDs = unitIDs; 
+                        money = money; 
+                        researchProgress = researchProgress;
+                        discoveries = discoveries; 
+                        currentlyDiscovering = currentlyDiscovering;
+                }
         let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
 
         { world with playerList = newCivs; units = unitsMap; unitsCount = unitsCount;} 

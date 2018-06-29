@@ -10,8 +10,8 @@ namespace ConsoleApp2
     {
         static void Main(string[] args)
         {
-            MapGenerator.MapGenerator mg = new MapGenerator.MapGenerator();
-            mg.GenerateToFile("map.sav");
+            //MapGenerator.MapGenerator mg = new MapGenerator.MapGenerator();
+            //mg.GenerateToFile("map.sav");
             //var map = mg.LoadMapFromFile("map.sav");
             /*var a = World.WorldUpdate.GetCityCells(10000).ToArray();
             var b = World.WorldUpdate.GetSortedCityCells(10000).ToArray();

@@ -135,6 +135,30 @@ module City =
         let b = Seq.take farmerCount a
         Seq.map (fun (n:KeyValuePair<int*int,LandTerrain>) -> Occupation.Farmer (fst n.Key, snd n.Key)) b
 
+    let AddNewFarmerToCity c r (existingFarmers:Occupation list) worldMap = 
+        let onlyFarmers n =
+            match n with
+            | Farmer _ -> true
+            | _ -> false
+        let farmers = List.where onlyFarmers existingFarmers
+
+        let GetSortedCityCells c r = 
+            let a = GetCityCells c r worldMap
+            let cmp2 (t1:KeyValuePair<int*int,LandTerrain>) (t2:KeyValuePair<int*int,LandTerrain>) = 
+                CellEconomicComparision t1.Value t2.Value
+            Seq.sortWith cmp2 a
+        let checkFarmers (n:KeyValuePair<int*int, LandTerrain>) = 
+            let coords = n.Key
+            let getFarmerCoords f =
+                match f with 
+                | Farmer (c,r) -> Some(c,r)
+                | _ -> None
+            let a = List.choose (fun n -> n) (List.map (fun n -> getFarmerCoords n) farmers)
+            not (List.contains coords a)
+
+        let a = GetSortedCityCells c r
+        Farmer (Seq.find (fun n -> checkFarmers n) a).Key
+
     let ChangeOccupation (occupation: Occupation list) n (newOccupation: Occupation) =
         List.mapi (fun i e -> if i <> n then e else newOccupation) 
 
