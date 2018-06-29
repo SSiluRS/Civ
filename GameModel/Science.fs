@@ -1,6 +1,6 @@
 ﻿namespace GameModel
 module Science =
-[<StructuredFormatDisplay("{name}")>]
+    [<StructuredFormatDisplay("{name}")>]
     type Advance = {
         name: string
         requirements: Advance list

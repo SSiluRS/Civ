@@ -142,18 +142,22 @@ module World =
         let civ = getCivByUnit world unit
         let key = List.findIndex (fun n -> n = civ) world.playerList
         let c,r = getUnitLoc world unit
+        let cityExists = civ.cities.TryFind (c,r)
         let city = 
-            { 
-                name = System.DateTime.Now.ToShortTimeString();
-                currentlyBuilding = City.CurrentlyBuilding.TradeGoods;
-                production = 0;
-                population = 1;
-                occupation = List.ofSeq (AssignFarmersToCell c r 1 world.worldMap);
-                food = 0;
-                building =[];
-                happiness = City.Happiness.Neutral;
-                units = []
-            }
+            match cityExists with
+            | Some(c) -> { c with population = c.population + 1}
+            | None -> 
+                { 
+                    name = System.DateTime.Now.ToShortTimeString();
+                    currentlyBuilding = City.CurrentlyBuilding.TradeGoods;
+                    production = 0;
+                    population = 1;
+                    occupation = List.ofSeq (AssignFarmersToCell c r 1 world.worldMap);
+                    food = 0;
+                    building =[];
+                    happiness = City.Happiness.Neutral;
+                    units = []
+                }
         let unitPack = (world.units.Item (c,r))
         let newUnits = 
             if List.length unitPack.units > 1 
@@ -168,9 +172,22 @@ module World =
     let researchDestination (civ: Civilization) =
         15 + 14 * (List.length  civ.discoveries)
 
+    let currentBuildingDestination (city : City) =
+        match city.currentlyBuilding with
+        | Building b -> b.cost
+        | Unit u -> u.cost
+        | TradeGoods -> 2
+
     let changeResearch (world:World) (civ: Civilization) (newResearch : Science.Advance) =
         let newCiv = { civ with currentlyDiscovering = newResearch }
         { world with playerList = List.map (fun n -> if n = civ then newCiv else n) world.playerList}
+
+    let changeCurrentBuilding (world:World) (city: City) (newBuilding : CurrentlyBuilding) =
+        let civ = List.find (fun (n:Civilization) -> (Map.tryFindKey (fun key n -> n = city) n.cities).IsSome) world.playerList
+        let newCity = { city with currentlyBuilding = newBuilding }
+        let newCities = Map.map (fun key n -> if n = city then newCity else n) civ.cities
+        let newCiv = { civ with cities = newCities }
+        { world with playerList = List.map (fun n -> if n = civ then newCiv else n) world.playerList }
 
     let updateCity (world : World) (city : City) = 
         //Get city civilization
@@ -224,7 +241,6 @@ module World =
                     else city.units, world.units
             | _ -> (city.units, world.units)
 
-
         //Update currently building
         let currentlyBuilding = 
             if production >= cost 
@@ -242,7 +258,10 @@ module World =
 
         //Update population
         let population = if (food >= foodDestination) then city.population + 1 else city.population
-
+        let population =
+            match city.currentlyBuilding with
+            | Unit u -> if u = Units.Settlers then population - 1 else population
+            | _ -> population
         //Update farmers
         let newOccupation = if (food >= foodDestination) then Some(AddNewFarmerToCity (fst cityCoords) (snd cityCoords) city.occupation world.worldMap) else None
 
@@ -309,7 +328,7 @@ module World =
         let newCiv = 
                 { 
                     civ with 
-                        cities = Map.add cityCoords newCity civ.cities; 
+                        cities = if population = 0 then Map.remove cityCoords civ.cities else Map.add cityCoords newCity civ.cities; 
                         unitIDs = unitIDs; 
                         money = money; 
                         researchProgress = researchProgress;
