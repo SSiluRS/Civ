@@ -163,8 +163,12 @@ module World =
         {  world with playerList = newCivs; units = newUnits }
          
 
-    let researchLeft (civ: Civilization) =
+    let researchDestination (civ: Civilization) =
         15 + 14 * (List.length  civ.discoveries)
+
+    let changeResearch (world:World) (civ: Civilization) (newResearch : Science.Advance) =
+        let newCiv = { civ with currentlyDiscovering = newResearch }
+        { world with playerList = List.map (fun n -> if n = civ then newCiv else n) world.playerList}
 
     let updateCity (world : World) (city : City) = 
         //Get city civilization
