@@ -200,4 +200,4 @@ module City =
                     let trade = (if n = b.[0] && GetTradeCount n h = 0 then 1 else GetTradeCount n h)
                     let food = (if n = b.[0] && GetFoodCount n h <= 1 then 2 else GetFoodCount n h)
                     shields, trade, food
-                )
+                ) b

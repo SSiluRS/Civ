@@ -174,23 +174,32 @@ module World =
         //Get city civilization
         let civ = List.find (fun (n:Civilization) -> (Map.tryFindKey (fun key n -> n = city) n.cities).IsSome) world.playerList
         
+        //Get city coordinates
+        let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
+
         let onlyFarmers n =
             match n with
             | Farmer _ -> true
             | _ -> false
-        let farmers = List.where onlyFarmers city.occupation
+        let farmers = (Farmer cityCoords) :: List.where onlyFarmers city.occupation
 
-        let getYield fn farmerList happiness =
+        (*let getYield fn farmerList happiness =
             let production farmer = 
                 match farmer with
                 | Farmer (c,r) -> fn (WorldMap.getWorldMapCell world.worldMap c r) happiness
                 | _ -> 0
-            List.fold (fun acc n -> acc + (production n)) 0 farmerList
+            List.fold (fun acc n -> acc + (production n)) 0 farmerList*)
             
         //Farmer's yield
-        let shields = getYield GetShieldsCount farmers Happiness.Neutral
+        let yieldList = GetFarmersYield  world.worldMap (fst cityCoords) (snd cityCoords) city
+        let shields, trade, food = 
+                                List.fold (fun acc n -> 
+                                            let a1, a2, a3 = acc
+                                            let n1, n2, n3 = n
+                                            a1+n1, a2+n2, a3+n3) (0,0,0) yieldList
+        (*let shields = getYield GetShieldsCount farmers Happiness.Neutral
         let trade = getYield GetTradeCount farmers Happiness.Neutral
-        let food = getYield GetFoodCount farmers Happiness.Neutral
+        let food = getYield GetFoodCount farmers Happiness.Neutral*)
 
         //Gain of production
         let production = city.production + shields
@@ -203,9 +212,6 @@ module World =
             match city.currentlyBuilding with
             | Building (b) -> if production >= cost then b :: city.building else city.building
             | _ -> city.building
-            
-        //Get city coordinates
-        let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
 
         //Get existing units in city cell
         let unitsInCell = 
