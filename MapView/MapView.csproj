@@ -34,7 +34,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.4.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="MapGeneratorFromCS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -128,6 +127,10 @@
     <ProjectReference Include="..\GameModel\GameModel.fsproj">
       <Project>{4943ba07-fc90-4b4b-bd81-dc17c9873edc}</Project>
       <Name>GameModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MapGeneratorFromCS\MapGeneratorFromCS.fsproj">
+      <Project>{b2e90905-a457-4c00-ad61-b03611a07e4d}</Project>
+      <Name>MapGeneratorFromCS</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

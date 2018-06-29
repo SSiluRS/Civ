@@ -6,6 +6,7 @@ module World =
     open Unit
     open City
     open Science
+    open GameModel
     
     type UnitPack = 
         {
@@ -294,7 +295,7 @@ module World =
         let researchProgress = trade * science / 100 + civ.researchProgress
         let researchDestination = 15 + 14 * (List.length  civ.discoveries)
         let discoveries = if (researchProgress >= researchDestination) then civ.currentlyDiscovering :: civ.discoveries else civ.discoveries
-        let currentlyDiscovering = if (researchProgress >= researchDestination) then (Utils.allowed discoveries).[0] else civ.currentlyDiscovering
+        let currentlyDiscovering = if (researchProgress >= researchDestination) then (Utils.allowedAdvances discoveries).[0] else civ.currentlyDiscovering
         let researchProgress = if (researchProgress >= researchDestination) then researchProgress - researchDestination else researchProgress
 
         //Update civilizations
