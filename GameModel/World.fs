@@ -329,7 +329,7 @@ module World =
                 { 
                     civ with 
                         cities = if population = 0 then Map.remove cityCoords civ.cities else Map.add cityCoords newCity civ.cities; 
-                        unitIDs = unitIDs; 
+                        unitIDs = if population = 0 then List.where (fun n ->List.contains n (List.map (fun n -> n.ID) city.units)) unitIDs else unitIDs; 
                         money = money; 
                         researchProgress = researchProgress;
                         discoveries = discoveries; 
@@ -337,7 +337,15 @@ module World =
                 }
         let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
 
-        { world with playerList = newCivs; units = unitsMap; unitsCount = unitsCount;} 
+        { 
+            world with 
+                playerList = newCivs; 
+                units = 
+                    if population = 0 
+                    then Map.filter (fun key n -> List.length n.units <> 0) (Map.map (fun key n -> { n with units = List.where (fun t -> not (List.contains t.ID  civ.unitIDs)) n.units}) unitsMap)
+                    else unitsMap; 
+                unitsCount = unitsCount;
+        } 
 
     let UpdateWorld (world : World) = 
         let updateCiv (world : World) (civ: Civilization) =
