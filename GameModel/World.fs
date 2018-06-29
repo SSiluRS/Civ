@@ -174,7 +174,10 @@ module World =
     let updateCity (world : World) (city : City) = 
         //Get city civilization
         let civ = List.find (fun (n:Civilization) -> (Map.tryFindKey (fun key n -> n = city) n.cities).IsSome) world.playerList
-        
+                    
+        //Get city coordinates
+        let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
+
         //Get city coordinates
         let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
 

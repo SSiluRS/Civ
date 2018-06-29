@@ -14,6 +14,8 @@ namespace MapView
     {
         GameModel.World.World world = GameModel.GameModel.createWorld;
 
+        GameModel.Science.Advance changedAdvance;
+
         private int worldX;
         private int worldY;
 
@@ -142,6 +144,16 @@ namespace MapView
             this.world = world;
             viewPort1.SetWorld(world);
             miniMap1.World = world;
+            
+        }
+
+        private void ScienceReportMenuPanel_Click(object sender, EventArgs e)
+        {
+            ScienceReport scienceReport = new ScienceReport();
+            scienceReport.SetWorld(world);
+            scienceReport.ShowDialog();
+            changedAdvance = scienceReport.ActiveAdvance;
+            ChangeAdvance();
         }
 
         //public List<Unit> CreateUnits()
@@ -153,6 +165,12 @@ namespace MapView
         //    }
         //    return units;
         //}
+
+        public void ChangeAdvance()
+        {
+            if (changedAdvance == world.playerList[0].currentlyDiscovering) return;
+            UpdateWorld(GameModel.World.changeResearch(world, world.playerList[0], changedAdvance));           
+        }
     }
 
     public enum Command

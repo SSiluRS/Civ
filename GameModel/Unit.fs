@@ -15,6 +15,7 @@ module Unit =
         | Catapult
         | Knight 
  
+    [<StructuredFormatDisplay("{unitClass}")>]
     type Unit = 
         {
             unitClass : UnitClass; 
@@ -25,7 +26,7 @@ module Unit =
 
     let getUnitMovement unitClass =
         match unitClass with
-        | UnitClass.Settlers ->  1
+        | UnitClass.Settlers ->  10
         | UnitClass.Militia ->   1
         | UnitClass.Phalanx ->   1
         | UnitClass.Chivalery -> 2
