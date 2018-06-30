@@ -63,11 +63,6 @@ namespace MapView
             {
                 listBox2.Items.Add(b);
             }
-
-            foreach (var u in city.units)
-            {
-                listView1.Items.Add(u.ToString());
-            }
             var canCreate = Utils.allowedUnits(civ.discoveries);
             foreach (var u in canCreate)
             {
