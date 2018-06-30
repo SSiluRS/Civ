@@ -103,6 +103,7 @@ module GameModel =
             worldMap = worldMap;
             playerList = playerList;
             units = Map.empty
+            roads = []
         }        
     
     let createWorld = createUnit createWorld1 createWorld1.playerList.[0] Units.Settlers VeteranStatus.Regular 170 80
