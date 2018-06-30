@@ -22,6 +22,7 @@ module Unit =
             veteran : VeteranStatus; 
             movesMade : int //Количество сделанных ходов, умноженых на 9 для обеспечения дробных ходов, например, по дороге
             ID : int
+            roadInfo : (bool * int) * (int * int)
         }
 
     let getUnitMovement unitClass =

@@ -21,6 +21,7 @@ module GameModel =
                 veteran = veteran
                 movesMade = 0
                 ID = world.unitsCount
+                roadInfo = (false, 0),(0,0)
             }
 
         let unitPack = 
@@ -42,7 +43,7 @@ module GameModel =
 
     let demoUnit (world:World) (playerList : Civilization list) =
         //Map.ofSeq (Seq.init 2 (fun n -> ((n,n), {units = [{unitClass = UnitClass.Catapult; veteran = VeteranStatus.Regular; movesMade = 0; ID = n}]; civilization = playerList.[n]})))
-        let world1 = createUnit world playerList.[0] Units.Catapult VeteranStatus.Regular 160 80
+        let world1 = createUnit world playerList.[0] Units.Settlers VeteranStatus.Regular 160 80
         createUnit world1 playerList.[1] Units.Settlers VeteranStatus.Regular 1 1
 
     let createCity worldMap c r = 
