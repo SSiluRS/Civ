@@ -221,9 +221,6 @@ module World =
         //Get city coordinates
         let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
 
-        //Get city coordinates
-        let cityCoords = Map.findKey (fun key n -> n = city) civ.cities
-
         //Farmer's yield
         let yieldList = GetFarmersYield  world.worldMap (fst cityCoords) (snd cityCoords) city
         let shields, trade, food = 
@@ -283,7 +280,9 @@ module World =
             if production >= cost 
             then 
                 match city.currentlyBuilding with
-                | Building b -> if List.length (Utils.allowedBuildings civ.discoveries) >= 1 then CurrentlyBuilding.Building (Utils.allowedBuildings civ.discoveries).[0] else CurrentlyBuilding.TradeGoods
+                | Building b -> 
+                    let a = List.where (fun (n : Buildings.Building)-> not (List.contains n city.building)) (Utils.allowedBuildings civ.discoveries)
+                    if List.length a >= 1 then CurrentlyBuilding.Building a.[0] else CurrentlyBuilding.TradeGoods
                 | Unit u -> CurrentlyBuilding.Unit u
                 | TradeGoods -> CurrentlyBuilding.TradeGoods
             else city.currentlyBuilding
@@ -297,7 +296,7 @@ module World =
         let population = if (food >= foodDestination) then city.population + 1 else city.population
         let population =
             match city.currentlyBuilding with
-            | Unit u -> if u = Units.Settlers then population - 1 else population
+            | Unit u -> if u = Units.Settlers && production >= cost then population - 1 else population
             | _ -> population
         //Update farmers
         let newOccupation = if (food >= foodDestination) then Some(AddNewFarmerToCity (fst cityCoords) (snd cityCoords) city.occupation world.worldMap) else None
