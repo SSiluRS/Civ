@@ -100,6 +100,11 @@ namespace MapView
                 var moveResult = GameModel.World.moveUnit(world, activeUnit, loc.Item1 + dx, loc.Item2 + dy);
                 UpdateWorld(moveResult.Item1);
                 activeUnit = moveResult.Item2.Value;
+                if (activeUnit.unitClass.mov == activeUnit.movesMade)
+                {
+                    activeUnit = null;
+                    viewPort1.BlinkUnit(activeUnit);
+                }
             }
             else if (command == Command.BuildCity)
             {
