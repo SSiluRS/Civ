@@ -2,7 +2,7 @@
 open Science
 module Units =
 
-
+    [<StructuredFormatDisplay("{name}")>]
     type UnitClass = {
         name: string
         advance : Advance option

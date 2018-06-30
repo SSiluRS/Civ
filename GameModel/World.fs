@@ -254,7 +254,7 @@ module World =
         //Gain of food 
         let food = city.food + food
 
-        let foodDestination = 10
+        let foodDestination = 100
 
         //Update population
         let population = if (food >= foodDestination) then city.population + 1 else city.population

@@ -13,8 +13,10 @@ namespace MapView
     public partial class Map : Form
     {
         GameModel.World.World world = GameModel.GameModel.createWorld;
+        GameModel.City.City city;
 
         GameModel.Science.Advance changedAdvance;
+        GameModel.City.CurrentlyBuilding changedBuilding;
 
         private int worldX;
         private int worldY;
@@ -63,16 +65,23 @@ namespace MapView
                     }
                 }
             }
+            if (UnitsList.Items.Count == 1)
+            {
+                UnitsList.SelectedItem = UnitsList.Items[0];
+            }
             foreach (var player in world.playerList)
             {
                 foreach (var city in player.cities)
                 {
                     if (e.Column == city.Key.Item1 && e.Row == city.Key.Item2)
                     {
+                        this.city = city.Value;
                         UI ui = new UI();
                         ui.World = world;
                         ui.SetCity(e.Column, e.Row);
-                        ui.ShowDialog();                   
+                        ui.ShowDialog();
+                        changedBuilding = ui.ActiveBuilding;
+                        ChangeBuilding();
 
                     }
                 }
@@ -170,6 +179,11 @@ namespace MapView
         {
             if (changedAdvance == world.playerList[0].currentlyDiscovering) return;
             UpdateWorld(GameModel.World.changeResearch(world, world.playerList[0], changedAdvance));           
+        }
+        public void ChangeBuilding()
+        {
+            if (changedBuilding == city.currentlyBuilding) return;
+            UpdateWorld(GameModel.World.changeCurrentBuilding(world, city, changedBuilding));
         }
     }
 
