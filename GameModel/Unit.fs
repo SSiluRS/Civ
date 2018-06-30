@@ -16,6 +16,7 @@ module Unit =
         | Catapult
         | Knight *)
  
+    [<StructuredFormatDisplay("{unitClass}")>]
     type Unit = 
         {
             unitClass : UnitClass; 

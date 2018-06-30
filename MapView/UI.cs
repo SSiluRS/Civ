@@ -61,12 +61,16 @@ namespace MapView
             var _canBuild = canBuild.Where(b => !built.Contains(b));
             foreach (var b in _canBuild)
             {
-                listBox2.Items.Add(b);
+                var i = listView2.Items.Add(b.name);
+                i.Tag = b;
+                i.Group = listView2.Groups["BuildingsGroup"];
             }
             var canCreate = Utils.allowedUnits(civ.discoveries);
             foreach (var u in canCreate)
             {
-                listBox2.Items.Add(u);
+                var i = listView2.Items.Add(u.name);
+                i.Tag = u;
+                i.Group = listView2.Groups["UnitsGroups"];
             }
         }
 
@@ -132,14 +136,20 @@ namespace MapView
 
         private void listBox2_SelectedValueChanged(object sender, EventArgs e)
         {
-            var b = listBox2.SelectedItem as GameModel.Buildings.Building;
-            var u = listBox2.SelectedItem as GameModel.Units.UnitClass;
+        }
 
-            ActiveBuilding = 
-                b is null ? 
+        private void listView2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listView2.SelectedIndices.Count == 0) return;
+            var b = listView2.SelectedItems[0].Tag as Buildings.Building;
+            var u = listView2.SelectedItems[0].Tag as Units.UnitClass;
+
+            ActiveBuilding =
+                b is null ?
                 City.CurrentlyBuilding.NewUnit(u) :
-                City.CurrentlyBuilding.NewBuilding(b);            
+                City.CurrentlyBuilding.NewBuilding(b);
             label2.Text = ActiveBuilding.ToString();
+
         }
     }
 }

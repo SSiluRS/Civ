@@ -31,6 +31,9 @@
             System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Units", System.Windows.Forms.HorizontalAlignment.Left);
             System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Buildings", System.Windows.Forms.HorizontalAlignment.Left);
             System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("TradeGoods", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup4 = new System.Windows.Forms.ListViewGroup("Units", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup5 = new System.Windows.Forms.ListViewGroup("Buildings", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup6 = new System.Windows.Forms.ListViewGroup("TradeGoods", System.Windows.Forms.HorizontalAlignment.Left);
             this.label2 = new System.Windows.Forms.Label();
             this.foodCountLabel = new System.Windows.Forms.Label();
             this.populationListView = new System.Windows.Forms.ListView();
@@ -41,8 +44,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
-            this.listBox2 = new System.Windows.Forms.ListBox();
             this.cityMap1 = new MapView.CityMap();
+            this.listView2 = new System.Windows.Forms.ListView();
             this.SuspendLayout();
             // 
             // label2
@@ -133,21 +136,12 @@
             listViewGroup1,
             listViewGroup2,
             listViewGroup3});
-            this.listView1.Location = new System.Drawing.Point(588, 183);
+            this.listView1.Location = new System.Drawing.Point(588, 180);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(177, 213);
+            this.listView1.Size = new System.Drawing.Size(177, 196);
             this.listView1.TabIndex = 8;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.List;
-            // 
-            // listBox2
-            // 
-            this.listBox2.FormattingEnabled = true;
-            this.listBox2.Location = new System.Drawing.Point(772, 183);
-            this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(173, 212);
-            this.listBox2.TabIndex = 11;
-            this.listBox2.SelectedValueChanged += new System.EventHandler(this.listBox2_SelectedValueChanged);
             // 
             // cityMap1
             // 
@@ -158,14 +152,36 @@
             this.cityMap1.Text = "cityMap1";
             this.cityMap1.World = null;
             // 
+            // listView2
+            // 
+            this.listView2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            listViewGroup4.Header = "Units";
+            listViewGroup4.Name = "UnitsGroup";
+            listViewGroup5.Header = "Buildings";
+            listViewGroup5.Name = "BuildingsGroup";
+            listViewGroup6.Header = "TradeGoods";
+            listViewGroup6.Name = "TradeGoodsGroup";
+            this.listView2.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
+            listViewGroup4,
+            listViewGroup5,
+            listViewGroup6});
+            this.listView2.Location = new System.Drawing.Point(768, 180);
+            this.listView2.MultiSelect = false;
+            this.listView2.Name = "listView2";
+            this.listView2.Size = new System.Drawing.Size(177, 196);
+            this.listView2.TabIndex = 8;
+            this.listView2.UseCompatibleStateImageBehavior = false;
+            this.listView2.View = System.Windows.Forms.View.SmallIcon;
+            this.listView2.SelectedIndexChanged += new System.EventHandler(this.listView2_SelectedIndexChanged);
+            // 
             // UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(957, 530);
-            this.Controls.Add(this.listBox2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.listView2);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.listBox1);
@@ -193,6 +209,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ListBox listBox2;
+        private System.Windows.Forms.ListView listView2;
     }
 }
