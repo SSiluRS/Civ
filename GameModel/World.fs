@@ -21,7 +21,7 @@ module World =
             worldMap: Map<int*int, LandTerrain>; 
             playerList : Civilization list;
             units : Map<int*int, UnitPack>;
-            roads : (int*int) list
+            currentPlayer : int
         }
         
     let getCellUnits (world:World) c r =
@@ -120,7 +120,6 @@ module World =
         then attackerWins world attacker defender
         else defenderWins world attacker defender
 
-
     let moveUnit (world:World) (unit:Unit.Unit) c r =
         let c0,r0 = getUnitLoc world unit
         let fromPack,toPack = moveUnitBitweenPacks world unit c0 r0 c r 
@@ -128,15 +127,21 @@ module World =
             if List.length fromPack.units <> 0 
             then (Map.add (c0,r0) fromPack world.units) 
             else (Map.remove (c0,r0) world.units)
-        let newWorld = ({ world with units = Map.add (c,r) {toPack with units = {unit with movesMade = unit.movesMade + 1} :: (List.where (fun n -> n <> unit) toPack.units)} map1 }, Some({unit with movesMade = unit.movesMade + 1}))
+        let newWorld = ({ world with units = Map.add (c,r) {toPack with units = {unit with movesMade = unit.movesMade + getMovementCost (world.worldMap.Item (c,r)) unit} :: (List.where (fun n -> n <> unit) toPack.units)} map1 }, Some({unit with movesMade = unit.movesMade + 1}))
         match getCellUnits world c r with
         | Some(pack) ->
-            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) || (fst (fst unit.roadInfo) = true) then (world, Some(unit))
+            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || 
+               (unit.movesMade >= getUnitMovement unit.unitClass) || 
+               ((getUnitMovement unit.unitClass - unit.movesMade) < (getMovementCost (world.worldMap.Item (c,r)) unit)) || 
+               (fst (fst unit.roadInfo) = true) then (world, Some(unit))
             else if List.length pack.units >= 1 && (getCivByUnit world pack.units.[0]) = (getCivByUnit world unit) || List.length pack.units = 0 then newWorld 
             else attackMove world unit (world.units.Item (c,r)).units
 
         | None -> 
-            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || (unit.movesMade >= getUnitMovement unit.unitClass) then (world, Some(unit))
+            if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || 
+               (unit.movesMade >= getUnitMovement unit.unitClass) || 
+               ((getUnitMovement unit.unitClass - unit.movesMade) < (getMovementCost (world.worldMap.Item (c,r)) unit)) || 
+               (fst (fst unit.roadInfo) = true) then (world, Some(unit))
             else newWorld            
 
     let unitMakesCity (world:World) (unit:Unit) =
@@ -168,7 +173,11 @@ module World =
         let newCiv = {civ with cities = newCities; unitIDs = List.where (fun n -> n <> unit.ID) civ.unitIDs}
         let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
         {  world with playerList = (if fst (fst unit.roadInfo) = true then world.playerList else newCivs); units = newUnits }
-         
+
+    let selectUnitWithMoves (world:World) (civ: Civilization) =
+        let allUnits = Map.fold (fun acc key n -> n @ acc) List.empty (Map.map (fun key (n: UnitPack) -> n.units) world.units)
+        let civUnits = List.where (fun n -> getCivByUnit world n = civ && n.movesMade < getUnitMovement n.unitClass) allUnits
+        if List.length civUnits >= 1 then Some(civUnits.[0]) else None
 
     let settlerBuildsRoad (world: World) (settler : Unit.Unit) =
         let civ = getCivByUnit world settler
@@ -201,7 +210,7 @@ module World =
     let currentBuildingDestination (city : City) =
         match city.currentlyBuilding with
         | Building b -> b.cost
-        | Unit u -> u.cost
+        | Unit u -> u.prod
         | TradeGoods -> 2
 
     let changeResearch (world:World) (civ: Civilization) (newResearch : Science.Advance) =
@@ -242,6 +251,12 @@ module World =
             | Building (b) -> if production >= cost then b :: city.building else city.building
             | _ -> city.building
 
+        //Buildings benefits
+        let hasBarrack = List.contains Buildings.Barracks buildings
+        let hasGranary = List.contains Buildings.Granary buildings
+        let hasLibrary = List.contains Buildings.Library buildings
+        let hasMarketplace = List.contains Buildings.Marketplace buildings
+
         //Get existing units in city cell
         let unitsInCell = 
             match (Map.tryFind cityCoords world.units) with
@@ -258,28 +273,11 @@ module World =
         let units, unitsMap =
             match city.currentlyBuilding with
             | Unit (u) ->
-                    let unit = {unitClass = u; veteran = Regular; movesMade = 0; ID = world.unitsCount; roadInfo = (false, 0),(0,0)}
+                    let unit = {unitClass = u; veteran = (if hasBarrack then Veteran else Regular); movesMade = 0; ID = world.unitsCount; roadInfo = (false, 0),(0,0)}
                     if production >= cost 
                     then (unit :: city.units), (Map.add cityCoords {units = unit :: unitsInCell} world.units )
                     else city.units, world.units
             | _ -> (city.units, world.units)
-
-        //Update Settlers who build roads
-        let newSettler settler = 
-            let settler = 
-                if fst (fst settler.roadInfo) = true 
-                then { settler with roadInfo = (true, snd (fst settler.roadInfo) + 1), (snd settler.roadInfo) }
-                else settler
-            if snd (fst settler.roadInfo) = 2 then {settler with roadInfo = ((false, 0), (0,0))},true else settler,false
-
-
-        let units, unitsMap = 
-            let newUnits = List.map (fun (n : Unit) -> if n.unitClass = Units.Settlers then fst (newSettler n) else n) units
-            let newUnitsMap = Map.map (fun key (n: UnitPack) -> { n with units = (List.map (fun p -> if p.unitClass = Units.Settlers then fst (newSettler p) else p) n.units) }) unitsMap
-            newUnits, newUnitsMap
-
-        let roads = List.map (fun n -> snd (fst (newSettler n)).roadInfo, snd (newSettler n)) (List.where (fun n -> n.unitClass = Units.Settlers) units)
-        let roads = List.map (fun n -> fst n) (List.where (fun n -> snd n = true) roads)
 
         //Update currently building
         let currentlyBuilding = 
@@ -308,7 +306,7 @@ module World =
         let newOccupation = if (food >= foodDestination) then Some(AddNewFarmerToCity (fst cityCoords) (snd cityCoords) city.occupation world.worldMap) else None
 
         //Update food amount
-        let food = if (food >= foodDestination) then food - foodDestination else food
+        let food = if (food >= foodDestination) then food - (foodDestination/ (if hasGranary then 2 else 1)) else food
         
         //Update civlization's units ID's list
         let unitIDs = 
@@ -352,7 +350,7 @@ module World =
         let science = civ.taxScience
         let money = 100 - luxury - science
 
-        let money = trade * money / 100 + civ.money
+        let money = if hasMarketplace then trade * money * 15 / 1000 + civ.money else trade * money / 100 + civ.money
      
         //Update TradeGoods building
         let money = 
@@ -360,7 +358,7 @@ module World =
             | TradeGoods -> shields / 2 + money
             | _ -> money
 
-        let researchProgress = trade * science / 100 + civ.researchProgress
+        let researchProgress = if hasLibrary then  trade * science * 15 / 1000 + civ.researchProgress else  trade * science / 100 + civ.researchProgress
         let researchDestination = 15 + 14 * (List.length  civ.discoveries)
         let discoveries = if (researchProgress >= researchDestination) then civ.currentlyDiscovering :: civ.discoveries else civ.discoveries
         let currentlyDiscovering = if (researchProgress >= researchDestination) then (Utils.allowedAdvances discoveries).[0] else civ.currentlyDiscovering
@@ -392,12 +390,51 @@ module World =
                         else a
                     else unitsMap; 
                 unitsCount = unitsCount;
-                roads = roads
         } 
+
+    let updateNonCities (world:World) =
+        //Update Settlers who build roads
+        let newSettler settler = 
+            let settler1 = 
+                if fst (fst settler.roadInfo) = true 
+                then { settler with roadInfo = (true, snd (fst settler.roadInfo) + 1), (snd settler.roadInfo) }
+                else settler
+            if snd (fst settler1.roadInfo) = 2 then {settler1 with roadInfo = ((false, 0), (0,0))},true else settler1,false
+
+        let upgradeLandTerrain key =
+            let lt = (WorldMap.getWorldMapCell world.worldMap (fst key) (snd key))
+            match lt with
+            | River _ -> River PlainUpgrades.Road
+            | Mountain _ -> Mountain MountainUpgrades.Road
+            | Hill _ -> Hill HillUpgrades.Road
+            | Desert _ -> Desert PlainUpgrades.Road
+            | Forest _ -> Forest BadTerrainUpgrades.Road
+            | GrassLand _ -> GrassLand PlainUpgrades.Road
+            | Plain _ -> Plain PlainUpgrades.Road
+            | Swamp _ -> Swamp BadTerrainUpgrades.Road
+            | Snow _ -> Snow BadTerrainUpgrades.Road
+            | Tundra _ -> Tundra BadTerrainUpgrades.Road
+            | _ -> raise (new NotImplementedException())
+
+        let units = Map.fold (fun acc key (n : UnitPack) -> acc @ n.units) List.empty world.units
+        let a = List.map (fun n -> snd (fst (newSettler n)).roadInfo, snd (newSettler n)) (List.where (fun n -> n.unitClass = Units.Settlers) units)
+        let a = List.map (fun n -> fst n) (List.where (fun n -> snd n = true) a)
+        let worldMap = Map.map (fun key n -> if List.contains key a then upgradeLandTerrain key else n) world.worldMap
+
+        let newCivs = List.map (fun n -> { n with cities = (Map.map (fun key n -> { n with units = (List.map (fun n -> if n.unitClass = Units.Settlers then fst (newSettler n) else n) n.units) }) n.cities)} ) world.playerList
+        let unitsMap = Map.map (fun key (n: UnitPack) -> { n with units = (List.map (fun p -> if p.unitClass = Units.Settlers then fst (newSettler p) else p) n.units) }) world.units
+
+        { 
+            world with 
+                worldMap = worldMap;
+                playerList = newCivs; 
+                units = unitsMap
+        }
 
     let UpdateWorld (world : World) = 
         let updateCiv (world : World) (civ: Civilization) =
             Map.fold (fun acc key n -> updateCity acc n) world civ.cities
         let a = List.fold (fun acc n -> updateCiv acc n) world world.playerList
         let b = {a with units = Map.map (fun key n -> {n with units = List.map (fun n -> {n with movesMade = 0}) n.units}) a.units}
-        b
+        let c = updateNonCities b
+        c

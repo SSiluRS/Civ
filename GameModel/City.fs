@@ -88,7 +88,7 @@ module City =
     let costToBuild (currentlyBuilding:CurrentlyBuilding) = 
         match currentlyBuilding with
         | Building b -> b.cost
-        | Unit (u) -> u.cost
+        | Unit (u) -> u.prod
         | TradeGoods -> 2
 
     let CellEconomicComparision cell1 cell2 =

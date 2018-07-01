@@ -43,7 +43,7 @@ module GameModel =
 
     let demoUnit (world:World) (playerList : Civilization list) =
         //Map.ofSeq (Seq.init 2 (fun n -> ((n,n), {units = [{unitClass = UnitClass.Catapult; veteran = VeteranStatus.Regular; movesMade = 0; ID = n}]; civilization = playerList.[n]})))
-        let world1 = createUnit world playerList.[0] Units.Settlers VeteranStatus.Regular 160 80
+        let world1 = createUnit world playerList.[0] Units.Settlers VeteranStatus.Regular 0 0
         createUnit world1 playerList.[1] Units.Settlers VeteranStatus.Regular 1 1
 
     let createCity worldMap c r = 
@@ -103,7 +103,7 @@ module GameModel =
             worldMap = worldMap;
             playerList = playerList;
             units = Map.empty
-            roads = []
+            currentPlayer = 0
         }        
     
     let createWorld = createUnit createWorld1 createWorld1.playerList.[0] Units.Settlers VeteranStatus.Regular 170 80
