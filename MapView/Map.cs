@@ -49,7 +49,7 @@ namespace MapView
 
         private void viewPort1_MapMove(object sender, MapMoveEventArgs e)
         {
-            miniMap1.MoveRect((320 + e.C) % 320, e.R);
+            miniMap1.MoveRect((320 + e.C) % 320, e.R);            
         }
 
         private void viewPort1_CellSelected(object sender, CellSelectedEventArgs e)
@@ -88,7 +88,6 @@ namespace MapView
             }
         }
 
-
         private void Map_KeyDown(object sender, KeyEventArgs e)
         {
             if (activeUnit == null) return;
@@ -102,7 +101,7 @@ namespace MapView
                 activeUnit = moveResult.Item2.Value;
                 if (activeUnit.unitClass.mov == activeUnit.movesMade)
                 {
-                    activeUnit = null;
+                    GetAvailableUnit();
                     viewPort1.BlinkUnit(activeUnit);
                 }
             }
@@ -111,6 +110,14 @@ namespace MapView
                 var civ = GameModel.World.getCivByUnit(world, activeUnit);
                 UpdateWorld(GameModel.World.unitMakesCity(world, activeUnit));
                 activeUnit = null;
+            }
+            else if (command == Command.BuildRoad)
+            {
+                if (activeUnit.unitClass.mov != activeUnit.movesMade)
+                {
+                    UpdateWorld(GameModel.World.settlerBuildsRoad(world, activeUnit));
+                    viewPort1.BlinkUnit(activeUnit);
+                }
             }
         }
 
@@ -131,6 +138,7 @@ namespace MapView
                 case Keys.Z: dx = -1; dy = 1;/*units[n].Column -= 1; units[n].Row += 1; cellR += 1; cellC -= 1;*/ break;
                 case Keys.C: dx = 1; dy = 1;/*units[n].Column += 1; units[n].Row += 1; cellR += 1; cellC += 1;*/ break;
                 case Keys.B: command = Command.BuildCity; break;
+                case Keys.R: command = Command.BuildRoad; break;
                 default:
                     break;
             }
@@ -153,12 +161,26 @@ namespace MapView
             UpdateWorld(GameModel.World.UpdateWorld(world));
         }
 
+        public void GetAvailableUnit()
+        {
+            try
+            {
+                activeUnit = GameModel.World.selectUnitWithMoves(world, world.playerList[0]).Value;
+            }
+            catch (Exception)
+            {
+                activeUnit = null;
+            }
+        }
+
         public void UpdateWorld(GameModel.World.World world)
         {
             this.world = world;
             viewPort1.SetWorld(world);
             miniMap1.World = world;
-            
+
+            GetAvailableUnit();
+
         }
 
         private void ScienceReportMenuPanel_Click(object sender, EventArgs e)

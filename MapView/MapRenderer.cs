@@ -15,6 +15,7 @@ namespace MapView
         Bitmap desert;
         Bitmap snow;
         Bitmap textures;
+        Bitmap roads;
         Bitmap vis;
         Graphics gv;
         GameModel.World.World world;
@@ -36,12 +37,13 @@ namespace MapView
         {
             this.w = w;
             this.h = h;
-            this.world = world;
+            this.world = world;            
             river = new Bitmap(@"../../Map/RiverS.png");
             mount = new Bitmap(@"../../Map/MountainsS.png");
             textures = new Bitmap(@"../../Map/Textures1.png");
             desert = new Bitmap(@"../../Map/DesertS.png");
             snow = new Bitmap(@"../../Map/SnowS.png");
+            roads = new Bitmap(@"../../Map/Roads.png");
         }
 
         public Rectangle GetOceanRectangle(int n)
@@ -73,6 +75,7 @@ namespace MapView
                     {
                         var xd = (c - cb) * tileSize + dx;
                         var color = GetPixel(c, r);
+
                         if (color.IsOcean)
                         {
                             int n0 = CheckTile2(tileKeyI, c - 1, r, c - 1, r - 1, c, r - 1);
@@ -119,11 +122,37 @@ namespace MapView
                             var dst = new Rectangle(xd, yd, tileSize, tileSize);
                             if (n != -1)
                                 gv.DrawImage(tiles, dst, src, GraphicsUnit.Pixel);
+                            var hasRoad = HasRoad(c, r);
+                            if (hasRoad != null)
+                            {
+                                for (int i = 0; i < 8; i++)
+                                {
+                                    if (hasRoad[i])
+                                    {
+                                        gv.DrawImage(roads, new Rectangle(xd, yd, tileSize, tileSize), new Rectangle(i * tileSize, 0, tileSize, tileSize), GraphicsUnit.Pixel);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
                 return vis;
             }
+        }
+
+        private bool[] HasRoad(int c, int r)
+        {
+            if (!GameModel.World.hasRoad(world, c, r)) return null;
+            return new bool[8] {
+                    GameModel.World.hasRoad(world, c, r - 1),
+                    GameModel.World.hasRoad(world, c + 1, r - 1),
+                    GameModel.World.hasRoad(world, c + 1, r),
+                    GameModel.World.hasRoad(world, c + 1, r + 1),
+                    GameModel.World.hasRoad(world, c, r + 1),
+                    GameModel.World.hasRoad(world, c - 1, r + 1),
+                    GameModel.World.hasRoad(world, c - 1, r),
+                    GameModel.World.hasRoad(world, c - 1, r - 1)
+            };
         }
 
         private void DrawGrass(int xd, int yd)
@@ -179,6 +208,7 @@ namespace MapView
                 else if (x >= 0 && x <= worldWidth - 1)
                 {
                     color = world.worldMap[new Tuple<int, int>(x, y)];
+                    
                 }
                 else if (x < 0)
                 {
@@ -188,6 +218,8 @@ namespace MapView
             }
             return color;
         }
+
+        
 
         public void Dispose()
         {

@@ -156,9 +156,12 @@ namespace MapView
 
         internal void BlinkUnit(GameModel.Unit.Unit blinkingUnit)
         {
-            this.blinkingUnit = blinkingUnit;
-            this.blink = !this.blink;
-            this.Invalidate();
+            if (blinkingUnit != null && blinkingUnit.movesMade != GameModel.Unit.getUnitMovement(blinkingUnit.unitClass))
+            {
+                this.blinkingUnit = blinkingUnit;
+                this.blink = !this.blink;
+                this.Invalidate();
+            }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)

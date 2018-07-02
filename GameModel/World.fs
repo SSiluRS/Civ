@@ -224,7 +224,7 @@ module World =
             | None -> None
         let newUnit = 
             if settler.unitClass = Units.Settlers 
-            then { settler with roadInfo = (true, 0),(c,r) }
+            then { settler with roadInfo = (true, 0),(c,r); movesMade = 9 }
             else settler
         let unitCoords = Map.findKey (fun key (n : UnitPack) -> List.contains settler n.units) world.units
         let newUnits = Map.map (fun key (n : UnitPack) -> if key = unitCoords then { n with units = List.map (fun n -> if n = settler then newUnit else n) n.units } else n) world.units   
@@ -481,3 +481,21 @@ module World =
         let b = {a with units = Map.map (fun key n -> {n with units = List.map (fun n -> {n with movesMade = 0}) n.units}) a.units}
         let c = updateNonCities b
         c
+
+    let hasRoad (world : World) c r =
+        match Map.tryFind (c, r) world.worldMap with
+        | Some(c) ->
+            match c with
+            | River (u) -> u = PlainUpgrades.Road
+            | Mountain (u) -> u = MountainUpgrades.Road
+            | Hill (u) -> u = HillUpgrades.Road
+            | Desert (u) ->  u = PlainUpgrades.Road
+            | Forest (u) -> u = BadTerrainUpgrades.Road
+            | GrassLand (u) -> u = PlainUpgrades.Road
+            | Plain (u) -> u = PlainUpgrades.Road
+            | Swamp (u) -> u = BadTerrainUpgrades.Road
+            | Snow (u) -> u = BadTerrainUpgrades.Road
+            | Tundra (u) -> u = BadTerrainUpgrades.Road
+            | _ -> false
+        | _ -> false
+        

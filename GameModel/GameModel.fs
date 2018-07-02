@@ -109,4 +109,7 @@ module GameModel =
             worldEvents = List.empty
         }        
     
-    let createWorld = createUnit createWorld1 createWorld1.playerList.[0] Units.Settlers VeteranStatus.Regular 170 80
+    let createWorld5 = createUnit createWorld1 createWorld1.playerList.[0] Units.Settlers VeteranStatus.Regular 3 10
+    let createWorld2 = createUnit createWorld5 createWorld5.playerList.[0] Units.Settlers VeteranStatus.Regular 5 10
+    let createWorld3 = createUnit createWorld2 createWorld2.playerList.[0] Units.Settlers VeteranStatus.Regular 7 10
+    let createWorld = createUnit createWorld3 createWorld3.playerList.[0] Units.Settlers VeteranStatus.Regular 9 10
