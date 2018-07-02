@@ -64,6 +64,8 @@
     <Compile Include="World.fs" />
     <Content Include="packages.config" />
     <Compile Include="GameModel.fs" />
+    <Compile Include="XMLToolKit.fs" />
+    <Compile Include="SaveNLoad.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -79,6 +81,8 @@
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MapGeneratorFromCS\MapGeneratorFromCS.fsproj">

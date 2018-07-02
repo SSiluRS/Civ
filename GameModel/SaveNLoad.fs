@@ -29,7 +29,6 @@ module SaveNLoad =
 
     let saveUnits (units : Unit.Unit list) = 
         List.map saveUnit units
-        
 
     let saveIDS unitIDS = 
         List.map (fun id -> XElement "id" [id]) unitIDS
@@ -77,7 +76,6 @@ module SaveNLoad =
             XElement "researchProgress" [civ.researchProgress]
             XElement "unitIDs" (saveIDS civ.unitIDs)
         ]
-
 
     let saveWorld world = 
         let doc =
