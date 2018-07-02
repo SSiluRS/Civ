@@ -28,13 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Units", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Buildings", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("TradeGoods", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup4 = new System.Windows.Forms.ListViewGroup("Units", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup5 = new System.Windows.Forms.ListViewGroup("Buildings", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup6 = new System.Windows.Forms.ListViewGroup("TradeGoods", System.Windows.Forms.HorizontalAlignment.Left);
             this.label2 = new System.Windows.Forms.Label();
             this.foodCountLabel = new System.Windows.Forms.Label();
             this.populationListView = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.cityMap1 = new MapView.CityMap();
             this.listBox1 = new System.Windows.Forms.ListBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.label1 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.cityMap1 = new MapView.CityMap();
+            this.listView2 = new System.Windows.Forms.ListView();
             this.SuspendLayout();
             // 
             // label2
@@ -76,15 +87,6 @@
             this.columnHeader2.Text = "Количество";
             this.columnHeader2.Width = 76;
             // 
-            // cityMap1
-            // 
-            this.cityMap1.Location = new System.Drawing.Point(254, 98);
-            this.cityMap1.Name = "cityMap1";
-            this.cityMap1.Size = new System.Drawing.Size(300, 300);
-            this.cityMap1.TabIndex = 0;
-            this.cityMap1.Text = "cityMap1";
-            this.cityMap1.World = null;
-            // 
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
@@ -93,11 +95,95 @@
             this.listBox1.Size = new System.Drawing.Size(122, 121);
             this.listBox1.TabIndex = 4;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(588, 151);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(357, 23);
+            this.progressBar1.TabIndex = 5;
+            // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(588, 114);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(357, 32);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "label1";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Location = new System.Drawing.Point(677, 420);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(195, 37);
+            this.button1.TabIndex = 10;
+            this.button1.Text = "Выбрать";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // listView1
+            // 
+            this.listView1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            listViewGroup1.Header = "Units";
+            listViewGroup1.Name = "UnitsGroup";
+            listViewGroup2.Header = "Buildings";
+            listViewGroup2.Name = "BuildingsGroup";
+            listViewGroup3.Header = "TradeGoods";
+            listViewGroup3.Name = "TradeGoodsGroup";
+            this.listView1.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
+            listViewGroup1,
+            listViewGroup2,
+            listViewGroup3});
+            this.listView1.Location = new System.Drawing.Point(588, 180);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(177, 196);
+            this.listView1.TabIndex = 8;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.List;
+            // 
+            // cityMap1
+            // 
+            this.cityMap1.Location = new System.Drawing.Point(262, 76);
+            this.cityMap1.Name = "cityMap1";
+            this.cityMap1.Size = new System.Drawing.Size(320, 320);
+            this.cityMap1.TabIndex = 0;
+            this.cityMap1.Text = "cityMap1";
+            this.cityMap1.World = null;
+            // 
+            // listView2
+            // 
+            this.listView2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            listViewGroup4.Header = "Units";
+            listViewGroup4.Name = "UnitsGroup";
+            listViewGroup5.Header = "Buildings";
+            listViewGroup5.Name = "BuildingsGroup";
+            listViewGroup6.Header = "TradeGoods";
+            listViewGroup6.Name = "TradeGoodsGroup";
+            this.listView2.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
+            listViewGroup4,
+            listViewGroup5,
+            listViewGroup6});
+            this.listView2.Location = new System.Drawing.Point(768, 180);
+            this.listView2.MultiSelect = false;
+            this.listView2.Name = "listView2";
+            this.listView2.Size = new System.Drawing.Size(177, 196);
+            this.listView2.TabIndex = 8;
+            this.listView2.UseCompatibleStateImageBehavior = false;
+            this.listView2.View = System.Windows.Forms.View.SmallIcon;
+            this.listView2.SelectedIndexChanged += new System.EventHandler(this.listView2_SelectedIndexChanged);
+            // 
             // UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(957, 530);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.listView2);
+            this.Controls.Add(this.listView1);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.populationListView);
             this.Controls.Add(this.foodCountLabel);
@@ -119,5 +205,10 @@
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListView listView2;
     }
 }

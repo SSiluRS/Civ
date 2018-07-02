@@ -114,9 +114,9 @@ namespace MapView
             pe.Graphics.DrawString(k.ToString(), SystemFonts.DefaultFont, Brushes.White, 0, 0);
         }
 
-        Rectangle GetUnitImage(GameModel.Unit.UnitClass uc)
+        Rectangle GetUnitImage(GameModel.Units.UnitClass uc)
         {
-            if (uc.IsSettlers)
+            if (uc == Units.Settlers)
                 return new Rectangle(0, 0, 64, 64);
             else
                 return new Rectangle(64, 0, 64, 64);

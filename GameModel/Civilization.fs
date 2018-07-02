@@ -1,5 +1,6 @@
 ﻿namespace GameModel
 module Civilization =
+    open MapGeneratorFromCS.MapGeneratorFromCS
 
     type Civilization = 
         {
@@ -12,4 +13,5 @@ module Civilization =
             currentlyDiscovering : Science.Advance;
             researchProgress : int;
             unitIDs : int list
+            fogOfWar : Map<int*int, bool>
         }

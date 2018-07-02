@@ -13,6 +13,10 @@ namespace MapView
     public partial class Map : Form
     {
         GameModel.World.World world = GameModel.GameModel.createWorld;
+        GameModel.City.City city;
+
+        GameModel.Science.Advance changedAdvance;
+        GameModel.City.CurrentlyBuilding changedBuilding;
 
         private int worldX;
         private int worldY;
@@ -61,16 +65,23 @@ namespace MapView
                     }
                 }
             }
+            if (UnitsList.Items.Count == 1)
+            {
+                UnitsList.SelectedItem = UnitsList.Items[0];
+            }
             foreach (var player in world.playerList)
             {
                 foreach (var city in player.cities)
                 {
                     if (e.Column == city.Key.Item1 && e.Row == city.Key.Item2)
                     {
+                        this.city = city.Value;
                         UI ui = new UI();
                         ui.World = world;
                         ui.SetCity(e.Column, e.Row);
-                        ui.ShowDialog();                   
+                        ui.ShowDialog();
+                        changedBuilding = ui.ActiveBuilding;
+                        ChangeBuilding();
 
                     }
                 }
@@ -89,6 +100,11 @@ namespace MapView
                 var moveResult = GameModel.World.moveUnit(world, activeUnit, loc.Item1 + dx, loc.Item2 + dy);
                 UpdateWorld(moveResult.Item1);
                 activeUnit = moveResult.Item2.Value;
+                if (activeUnit.unitClass.mov == activeUnit.movesMade)
+                {
+                    activeUnit = null;
+                    viewPort1.BlinkUnit(activeUnit);
+                }
             }
             else if (command == Command.BuildCity)
             {
@@ -142,6 +158,16 @@ namespace MapView
             this.world = world;
             viewPort1.SetWorld(world);
             miniMap1.World = world;
+            
+        }
+
+        private void ScienceReportMenuPanel_Click(object sender, EventArgs e)
+        {
+            ScienceReport scienceReport = new ScienceReport();
+            scienceReport.SetWorld(world);
+            scienceReport.ShowDialog();
+            changedAdvance = scienceReport.ActiveAdvance;
+            ChangeAdvance();
         }
 
         //public List<Unit> CreateUnits()
@@ -153,6 +179,17 @@ namespace MapView
         //    }
         //    return units;
         //}
+
+        public void ChangeAdvance()
+        {
+            if (changedAdvance == world.playerList[0].currentlyDiscovering) return;
+            UpdateWorld(GameModel.World.changeResearch(world, world.playerList[0], changedAdvance));           
+        }
+        public void ChangeBuilding()
+        {
+            if (changedBuilding == city.currentlyBuilding) return;
+            UpdateWorld(GameModel.World.changeCurrentBuilding(world, city, changedBuilding));
+        }
     }
 
     public enum Command

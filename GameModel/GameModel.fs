@@ -4,14 +4,10 @@ open City
 module GameModel =
     open World
     open System
-    open Unit
-    open WorldMap
+    open Units
     open GameModel
     open Civilization
-
-    let createUnits n =
-        let rnd = new Random()
-        Map.ofSeq (Seq.init n (fun n -> ((rnd.Next(320), rnd.Next(160)), {unitClass = Unit.Catapult; veteran = VeteranStatus.Regular; movesMade = 0; ID = n})))
+    open Unit
 
     let createUnit (world:World) (civ:Civilization) (unitClass:UnitClass) (veteran:VeteranStatus) c r =
         let existingUnitPack = (world.units.TryFind (c,r))
@@ -25,6 +21,7 @@ module GameModel =
                 veteran = veteran
                 movesMade = 0
                 ID = world.unitsCount
+                roadInfo = (false, 0),(0,0)
             }
 
         let unitPack = 
@@ -46,18 +43,18 @@ module GameModel =
 
     let demoUnit (world:World) (playerList : Civilization list) =
         //Map.ofSeq (Seq.init 2 (fun n -> ((n,n), {units = [{unitClass = UnitClass.Catapult; veteran = VeteranStatus.Regular; movesMade = 0; ID = n}]; civilization = playerList.[n]})))
-        let world1 = createUnit world playerList.[0] UnitClass.Catapult VeteranStatus.Regular 160 80
-        createUnit world1 playerList.[1] UnitClass.Catapult VeteranStatus.Regular 1 1
+        let world1 = createUnit world playerList.[0] Units.Settlers VeteranStatus.Regular 0 0
+        createUnit world1 playerList.[1] Units.Settlers VeteranStatus.Regular 1 1
 
     let createCity worldMap c r = 
         { 
             name = "Moscow"; 
-            currentlyBuilding = City.CurrentlyBuilding.Unit UnitClass.Settlers;
+            currentlyBuilding = City.CurrentlyBuilding.Unit Units.Settlers;
             production = 0;
             population = 1;
             occupation = List.ofSeq (AssignFarmersToCell c r 4 worldMap);
             food = 0;
-            building =[];
+            building =[Buildings.Barracks];
             happiness = City.Happiness.Neutral;
             units = []
         }
@@ -66,7 +63,7 @@ module GameModel =
         let worldMap = WorldMap.loadWorld @"map.sav"
         let cities =
             //let a = Seq.init 51000 (fun n -> findCellForCity1 worldMap 160 80)
-            let c = findCellForCity1 worldMap 100 1
+            let c = findCellForCity1 worldMap 170 80
             let zz (c,r) = 
                 //let c, r = i%mapWidth, i/mapWidth
                 let z = createCity worldMap c r
@@ -78,15 +75,16 @@ module GameModel =
 
         let playerList =
                 [{
-                    name = "Player";
+                    name = "Player1";
                     money = 0;
                     discoveries = [];
-                    taxScience = 50;
-                    taxLuxury = 50;
+                    taxScience = 100;
+                    taxLuxury = 0;
                     cities = cities
                     currentlyDiscovering = Science.Alphabet
                     researchProgress = 0;
                     unitIDs = []
+                    fogOfWar = Map.ofSeq (Seq.init (320*160) (fun n -> (n%320, n/320), false))
                 };
                 {
                     name = "Player2";
@@ -98,6 +96,7 @@ module GameModel =
                     currentlyDiscovering = Science.Alphabet;
                     researchProgress = 0;
                     unitIDs = []
+                    fogOfWar = Map.ofSeq (Seq.init (320*160) (fun n -> (n%320, n/320), false))
                 }]
 
         {
@@ -106,6 +105,8 @@ module GameModel =
             worldMap = worldMap;
             playerList = playerList;
             units = Map.empty
+            currentPlayer = 0
+            worldEvents = List.empty
         }        
     
-    let createWorld = createUnit createWorld1 createWorld1.playerList.[0] UnitClass.Settlers VeteranStatus.Regular 170 80
+    let createWorld = createUnit createWorld1 createWorld1.playerList.[0] Units.Settlers VeteranStatus.Regular 170 80

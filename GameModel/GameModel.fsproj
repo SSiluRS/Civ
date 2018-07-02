@@ -57,8 +57,8 @@
     <Compile Include="Science.fs" />
     <Compile Include="Buildings.fs" />
     <Compile Include="Units.fs" />
-    <Compile Include="Utils.fs" />
     <Compile Include="Unit.fs" />
+    <Compile Include="Utils.fs" />
     <Compile Include="City.fs" />
     <Compile Include="Civilization.fs" />
     <Compile Include="World.fs" />

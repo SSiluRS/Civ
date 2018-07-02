@@ -2,8 +2,8 @@
 open Science
 module Units =
 
-
-    type Unit = {
+    [<StructuredFormatDisplay("{name}")>]
+    type UnitClass = {
         name: string
         advance : Advance option
         att : int

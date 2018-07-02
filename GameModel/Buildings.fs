@@ -1,6 +1,7 @@
 ﻿namespace GameModel
 module Buildings =
     open Science
+    [<StructuredFormatDisplay("{name}")>]
     type Building = {
         name: string
         technology : Advance option

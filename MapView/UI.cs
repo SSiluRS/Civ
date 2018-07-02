@@ -18,23 +18,75 @@ namespace MapView
             InitializeComponent();
         }
 
-        private GameModel.World.World world;
+        public World.World World { get; set; }
 
-        public GameModel.World.World World
+        Civilization.Civilization civ
         {
-            get { return world; }
-            set
-            {
-                world = value;
-            }
+            get => World.playerList[0];
         }
 
         City.City city;
+        public City.CurrentlyBuilding ActiveBuilding { get; private set; }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            ActiveBuilding = city.currentlyBuilding;
+            if (ActiveBuilding.IsBuilding)
+            {
+                var building = ActiveBuilding as City.CurrentlyBuilding.Building;
+                label1.Text = building.Item.name;
+            }
+            else if (ActiveBuilding.IsUnit)
+            {
+                var unit = ActiveBuilding as City.CurrentlyBuilding.Unit;
+                label1.Text = unit.Item.ToString();
+            }
+            else if (ActiveBuilding.IsTradeGoods)
+            {
+                label1.Text = "TradeGoods";
+            }
+            else
+                throw new NotImplementedException();
+
+            SetProgressBar();
+
+            var allUnits = Units.allUnits;
+            var allBuildings = Buildings.allBuildings;
+            foreach (var building in city.building)
+            {
+                listView1.Items.Add(building.ToString());
+            }
+            var canBuild = Utils.allowedBuildings(civ.discoveries);
+            var built = city.building.ToLookup(b => b);
+            var _canBuild = canBuild.Where(b => !built.Contains(b));
+            foreach (var b in _canBuild)
+            {
+                var i = listView2.Items.Add(b.name);
+                i.Tag = b;
+                i.Group = listView2.Groups["BuildingsGroup"];
+            }
+            var canCreate = Utils.allowedUnits(civ.discoveries);
+            foreach (var u in canCreate)
+            {
+                var i = listView2.Items.Add(u.name);
+                i.Tag = u;
+                i.Group = listView2.Groups["UnitsGroups"];
+            }
+        }
+
+        private void SetProgressBar()
+        {
+            var production = city.production;
+            var max = GameModel.World.currentBuildingDestination(city);
+            progressBar1.Maximum = max;
+            progressBar1.Value = production;
+            
+        }
 
         public void SetCity(int c, int r)
         {
             city = FindCity(c, r);
-            cityMap1.World = world;
+            cityMap1.World = World;
             cityMap1.SetCity(city, c, r);
             foodCountLabel.Text = city.food.ToString();
             var population = city.occupation.Count();
@@ -64,7 +116,7 @@ namespace MapView
 
         private City.City FindCity(int c, int r)
         {
-            foreach (var player in world.playerList)
+            foreach (var player in World.playerList)
             {
                 foreach (var city in player.cities)
                 {
@@ -77,5 +129,27 @@ namespace MapView
             return null;
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
+        }
+
+        private void listBox2_SelectedValueChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void listView2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listView2.SelectedIndices.Count == 0) return;
+            var b = listView2.SelectedItems[0].Tag as Buildings.Building;
+            var u = listView2.SelectedItems[0].Tag as Units.UnitClass;
+
+            ActiveBuilding =
+                b is null ?
+                City.CurrentlyBuilding.NewUnit(u) :
+                City.CurrentlyBuilding.NewBuilding(b);
+            label2.Text = ActiveBuilding.ToString();
+
+        }
     }
 }

@@ -52,15 +52,15 @@ namespace MapView
                 .Cast<City.Occupation.Farmer>()
                 .Zip(farmList.Skip(1), Tuple.Create)
                 .ToArray();
-
+            
             for (int i = 0; i < farmers.Length + 1; i++)
             {
                 var isCityCell = i == farmers.Length;
                 // if (i == farmers.Length)
                 var f = isCityCell ? farmList[0] : farmers[i].Item2;
-                var foodCount = f.Item1;
-                var productionCount = f.Item2;
-                var tradeCount = f.Item3;
+                var foodCount = f.Item3;
+                var productionCount = f.Item1;
+                var tradeCount = f.Item2;
                 var fc = isCityCell ? c : farmers[i].Item1.Item1;
                 var fr = isCityCell ? r : farmers[i].Item1.Item2;
                 DrawRecources(c, r, foodCount, productionCount, tradeCount, pe.Graphics, fc, fr);
@@ -98,15 +98,15 @@ namespace MapView
                     else if (productionCount > 0)
                     {
                         productionCount--;
-                        n = 1;
+                        n = 2;
                     }
                     else
                     {
                         tradeCount--;
-                        n = 2;
+                        n = 1;
                     }
                     var dest = new Rectangle(
-                        i * 32 / (rcount > 1 ? rcount-- : rcount) + (farmerC - (c - 2)) * 64, 
+                        i * 32 / (rcount > 1 ? rcount-1 : rcount) + (farmerC - (c - 2)) * 64, 
                         l * 32 + (farmerR - (r - 2)) * 64, 32, 32);
                     var src = new Rectangle(n * 16, 0, 16, 16);
                     g.DrawImage(dev, dest, src, GraphicsUnit.Pixel);
