@@ -31,7 +31,9 @@ module GameModel =
 
         let units = Map.add (c,r) unitPack world.units
         
-        let newCiv = {civ with unitIDs = world.unitsCount :: civ.unitIDs}
+        let fogOfWar = updFogOfWar c r civ.fogOfWar
+
+        let newCiv = {civ with unitIDs = world.unitsCount :: civ.unitIDs; fogOfWar = fogOfWar}
         let newCivs = List.map (fun n -> if n = civ then newCiv else n) world.playerList
 
         {
@@ -84,7 +86,7 @@ module GameModel =
                     currentlyDiscovering = Science.Alphabet
                     researchProgress = 0;
                     unitIDs = []
-                    fogOfWar = Map.ofSeq (Seq.init (320*160) (fun n -> (n%320, n/320), false))
+                    fogOfWar = Map.empty
                 };
                 {
                     name = "Player2";
@@ -96,7 +98,7 @@ module GameModel =
                     currentlyDiscovering = Science.Alphabet;
                     researchProgress = 0;
                     unitIDs = []
-                    fogOfWar = Map.ofSeq (Seq.init (320*160) (fun n -> (n%320, n/320), false))
+                    fogOfWar = Map.empty
                 }]
 
         {
@@ -111,5 +113,5 @@ module GameModel =
     
     let createWorld5 = createUnit createWorld1 createWorld1.playerList.[0] Units.Settlers VeteranStatus.Regular 3 10
     let createWorld2 = createUnit createWorld5 createWorld5.playerList.[0] Units.Settlers VeteranStatus.Regular 5 10
-    let createWorld3 = createUnit createWorld2 createWorld2.playerList.[0] Units.Settlers VeteranStatus.Regular 7 10
-    let createWorld = createUnit createWorld3 createWorld3.playerList.[0] Units.Settlers VeteranStatus.Regular 9 10
+    let createWorld3 = createUnit createWorld2 createWorld2.playerList.[1] Units.Settlers VeteranStatus.Regular 7 10
+    let createWorld = createUnit createWorld3 createWorld3.playerList.[1] Units.Settlers VeteranStatus.Regular 9 10

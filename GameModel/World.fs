@@ -69,9 +69,9 @@ module World =
         List.find (fun (n:Civilization) -> List.contains ID n.unitIDs) world.playerList
 
     let updFogOfWar c r fogOfWar =
-        let zz c2 r2 = (c2,r2), true
+        let zz c2 r2 = (c2,r2), false
         let a = Map.ofSeq (Misc.iter2d (c-1) (r-1) 3 3 zz)
-        Map.map (fun key n -> if Map.containsKey key a then Map.find key a else n) fogOfWar
+        Map.ofSeq (Seq.concat [(Map.toSeq a); (Map.toSeq fogOfWar)]) 
 
     let attackerWins (world:World) (attacker:Unit.Unit) (defender:Unit.Unit) =
         let defencerCoords = getUnitLoc world defender
@@ -154,6 +154,7 @@ module World =
             if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || 
                (unit.movesMade >= getUnitMovement unit.unitClass) || 
                (getCivByUnit world unit <> world.playerList.[world.currentPlayer]) ||
+               unit.unitClass = Units.Settlers ||
                ((getUnitMovement unit.unitClass - unit.movesMade) < (getMovementCost (world.worldMap.Item (c,r)) unit)) || 
                (fst (fst unit.roadInfo) = true) then ( { world with playerList = newCivsNoMoves }, Some(unit))
             else if List.length pack.units >= 1 && (getCivByUnit world pack.units.[0]) = (getCivByUnit world unit) || List.length pack.units = 0 then newWorld 
@@ -163,6 +164,7 @@ module World =
             if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || 
                (unit.movesMade >= getUnitMovement unit.unitClass) || 
                (getCivByUnit world unit <> world.playerList.[world.currentPlayer]) ||
+               unit.unitClass = Units.Settlers ||
                ((getUnitMovement unit.unitClass - unit.movesMade) < (getMovementCost (world.worldMap.Item (c,r)) unit)) || 
                (fst (fst unit.roadInfo) = true) then (world, Some(unit))
             else newWorld            
