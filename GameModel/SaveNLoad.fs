@@ -6,13 +6,70 @@ module SaveNLoad =
     open City
     open World
     open Microsoft.FSharp.Reflection
+    open MapGeneratorFromCS.MapGeneratorFromCS
 
     let GetUnionCaseName (x:'a) = 
         match FSharpValue.GetUnionFields(x, typeof<'a>) with
         | case, _ -> case.Name  
 
+    let saveMap (map : Map<int*int, LandTerrain>) = 
+        let savePlainUpgrades (u : PlainUpgrades) = 
+            match u with
+            | PlainUpgrades.Nothing -> None
+            | _ -> Some(GetUnionCaseName u)
+
+        let saveMountainUpgrades (u : MountainUpgrades) = 
+            match u with 
+            | MountainUpgrades.Nothing -> None
+            | _ -> Some(GetUnionCaseName u)
+
+        let saveHillUpgrades (u : HillUpgrades) =
+            match u with
+            | HillUpgrades.Nothing -> None
+            | _ -> Some(GetUnionCaseName u)
+
+        let saveBadTerrainUpgrades (u : BadTerrainUpgrades) =
+            match u with
+            | BadTerrainUpgrades.Nothing -> None
+            | _ -> Some(GetUnionCaseName u)
+
+        let saveTerrain ((c, r), (terrain : LandTerrain)) =
+            let save t =
+                Some(
+                    match t with
+                    | Some(v) -> XElement (GetUnionCaseName terrain) [v]
+                    | None -> XElement (GetUnionCaseName terrain) []
+                )
+
+            let u =
+                match terrain with
+                | River (u) -> savePlainUpgrades u |> save
+                | Mountain (u) -> saveMountainUpgrades u |> save
+                | Hill (u) -> saveHillUpgrades u |> save
+                | Desert (u) -> savePlainUpgrades u |> save
+                | Forest (u) -> saveBadTerrainUpgrades u |> save
+                | GrassLand (u) -> savePlainUpgrades u |> save
+                | Plain (u) -> savePlainUpgrades u |> save
+                | Swamp (u) -> saveBadTerrainUpgrades u |> save
+                | Snow (u) -> saveBadTerrainUpgrades u |> save
+                | Tundra (u) -> saveBadTerrainUpgrades u |> save
+                | _ -> None
+            
+            match u with
+            | Some(k) -> 
+                Some(
+                    XElement "T" 
+                        [
+                            XAttribute "c" c
+                            XAttribute "r" r
+                            k
+                        ]
+                )
+            | None -> None
+        Seq.choose saveTerrain (Map.toSeq map)
+
     let saveUnit (u : Unit.Unit) =
-        XElement (GetUnionCaseName u.unitClass) [
+        XElement u.unitClass.name [
             XElement "ID" [u.ID]
             XElement "VeteranStatus" [u.veteran] 
             XElement "madeMoves" [u.movesMade]
@@ -84,6 +141,7 @@ module SaveNLoad =
                     XElement "unitsCount" [world.unitsCount]
                     XElement "civilizations" (List.map saveCivilization world.playerList)
                     XElement "units" (saveWorldUnits world.units)
+                    XElement "worldMap" (saveMap world.worldMap)
                 ]
             ]
         doc
