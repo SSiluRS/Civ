@@ -43,7 +43,7 @@ module Unit =
         | (LandTerrain.Forest BadTerrainUpgrades.Nothing) -> 9
         | (LandTerrain.Forest BadTerrainUpgrades.Road) -> 3
         | (LandTerrain.Mountain MountainUpgrades.Road) -> 3
-        | (LandTerrain.Mountain _) -> getUnitMovement unit.unitClass - unit.movesMade
+        | (LandTerrain.Mountain _) -> if unit.movesMade < 1 then 1 else getUnitMovement unit.unitClass - unit.movesMade
         | (LandTerrain.River PlainUpgrades.Road) -> 3
         | (LandTerrain.River _) -> 9
         | (LandTerrain.Snow BadTerrainUpgrades.Nothing) -> 9

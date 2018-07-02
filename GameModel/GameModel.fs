@@ -75,7 +75,7 @@ module GameModel =
 
         let playerList =
                 [{
-                    name = "Player";
+                    name = "Player1";
                     money = 0;
                     discoveries = [];
                     taxScience = 100;
@@ -84,6 +84,7 @@ module GameModel =
                     currentlyDiscovering = Science.Alphabet
                     researchProgress = 0;
                     unitIDs = []
+                    fogOfWar = Map.ofSeq (Seq.init (320*160) (fun n -> (n%320, n/320), false))
                 };
                 {
                     name = "Player2";
@@ -95,6 +96,7 @@ module GameModel =
                     currentlyDiscovering = Science.Alphabet;
                     researchProgress = 0;
                     unitIDs = []
+                    fogOfWar = Map.ofSeq (Seq.init (320*160) (fun n -> (n%320, n/320), false))
                 }]
 
         {
@@ -104,6 +106,7 @@ module GameModel =
             playerList = playerList;
             units = Map.empty
             currentPlayer = 0
+            worldEvents = List.empty
         }        
     
     let createWorld = createUnit createWorld1 createWorld1.playerList.[0] Units.Settlers VeteranStatus.Regular 170 80
