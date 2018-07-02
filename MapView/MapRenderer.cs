@@ -60,7 +60,7 @@ namespace MapView
             vis = new Bitmap(w, h);
             using (gv = Graphics.FromImage(vis))
             {
-
+                //var x = xx >= 0 ? xx : 320 + xx;
                 var cb = x / tileSize;
                 var rb = y / tileSize;
                 var ce = (x + w) / tileSize;
@@ -123,6 +123,7 @@ namespace MapView
                             if (n != -1)
                                 gv.DrawImage(tiles, dst, src, GraphicsUnit.Pixel);
                             var hasRoad = HasRoad(c, r);
+
                             if (hasRoad != null)
                             {
                                 for (int i = 0; i < 8; i++)
@@ -134,10 +135,20 @@ namespace MapView
                                 }
                             }
                         }
+
+                        if (!CheckFogOfWar(c, r))
+                        {
+                            gv.FillRectangle(Brushes.Black, new Rectangle(xd, yd, tileSize, tileSize));
+                        }
                     }
                 }
                 return vis;
             }
+        }
+
+        public bool CheckFogOfWar(int c, int r)
+        {
+            return world.playerList[world.currentPlayer].fogOfWar.ContainsKey(Tuple.Create(c, r));
         }
 
         private bool[] HasRoad(int c, int r)

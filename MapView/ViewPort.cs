@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GameModel;
+using Microsoft.FSharp.Collections;
 
 namespace MapView
 {
@@ -37,6 +38,7 @@ namespace MapView
         Pen myPen = new Pen(Color.White, 2);
         Rectangle cell;
         GameModel.World.World world;
+        //FSharpMap<Tuple<int, int>, bool> fogOfWar;
         bool blink = true;
         GameModel.Unit.Unit blinkingUnit = null;
 
@@ -57,9 +59,10 @@ namespace MapView
         }
 
         public void SetWorld(GameModel.World.World world)
-        {            
+        {
             mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height, world);
             this.world = world;
+            //fogOfWar = world.playerList[world.currentPlayer].fogOfWar;
             Invalidate();
         }
 
@@ -84,7 +87,7 @@ namespace MapView
                 {
                     pe.Graphics.FillRectangle(Brushes.Gray, new Rectangle(city.Key.Item1 * tileSize - x, city.Key.Item2 * tileSize - y, tileSize, tileSize));
                 }
-            }
+            }            
 
             if (drawCell)
             {
@@ -98,13 +101,21 @@ namespace MapView
                 var r = u.Key.Item2;
                 var unit = 
                     (
-                        blinkingUnit != null 
+                        blinkingUnit != null
                         ? u.Value.units.FirstOrDefault(uu => uu.ID == blinkingUnit.ID)
                         : null
                     ) ?? u.Value.units.First();
-
-                if ((blinkingUnit == null || unit.ID != blinkingUnit.ID || blink) && CheckUnit(c, r))
+                var a = GameModel.World.getCivByUnit(world, unit) == world.playerList[world.currentPlayer];
+                if (
+                    (
+                        blinkingUnit == null 
+                        || unit.ID != blinkingUnit.ID 
+                        || blink
+                    )
+                    && CheckUnit(c, r) 
+                    && (a || (!a && world.playerList[world.currentPlayer].fogOfWar.ContainsKey(World.getUnitLoc(world, unit)))))
                 {
+                    pe.Graphics.FillRectangle(a ? Brushes.White : Brushes.Red, new Rectangle(c * tileSize - x, r * tileSize - y, tileSize, tileSize));
                     var dest = new Rectangle(c * tileSize - x, r * tileSize - y, tileSize, tileSize);
                     var src = GetUnitImage(unit.unitClass);
                     pe.Graphics.DrawImage(unitTiles, dest, src, GraphicsUnit.Pixel);
@@ -160,8 +171,10 @@ namespace MapView
             {
                 this.blinkingUnit = blinkingUnit;
                 this.blink = !this.blink;
-                this.Invalidate();
             }
+            else
+                this.blinkingUnit = null;
+            this.Invalidate();
         }
 
         protected override void OnMouseUp(MouseEventArgs e)

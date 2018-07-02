@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.FSharp.Collections;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,6 +14,7 @@ namespace MapView
     public partial class Map : Form
     {
         GameModel.World.World world = GameModel.GameModel.createWorld;
+        //FSharpMap<Tuple<int, int>, bool> fogOfWar;
         GameModel.City.City city;
 
         GameModel.Science.Advance changedAdvance;
@@ -31,6 +33,7 @@ namespace MapView
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            //fogOfWar = world.playerList[world.currentPlayer].fogOfWar;
             viewPort1.SetWorld(world);
             miniMap1.World = world;
             miniMap1.ViewPortWidth = viewPort1.ClientSize.Width / MapRenderer.tileSize;
@@ -49,7 +52,7 @@ namespace MapView
 
         private void viewPort1_MapMove(object sender, MapMoveEventArgs e)
         {
-            miniMap1.MoveRect((320 + e.C) % 320, e.R);            
+            miniMap1.MoveRect((320 + (e.C % 320)) % 320, e.R);            
         }
 
         private void viewPort1_CellSelected(object sender, CellSelectedEventArgs e)
@@ -101,7 +104,7 @@ namespace MapView
                 activeUnit = moveResult.Item2.Value;
                 if (activeUnit.unitClass.mov == activeUnit.movesMade)
                 {
-                    GetAvailableUnit();
+                    NextAvailableUnit();
                     viewPort1.BlinkUnit(activeUnit);
                 }
             }
@@ -161,11 +164,11 @@ namespace MapView
             UpdateWorld(GameModel.World.UpdateWorld(world));
         }
 
-        public void GetAvailableUnit()
+        public void NextAvailableUnit()
         {
             try
             {
-                activeUnit = GameModel.World.selectUnitWithMoves(world, world.playerList[0]).Value;
+                activeUnit = GameModel.World.getUnitWithMoves(world).Value;
             }
             catch (Exception)
             {
@@ -179,7 +182,7 @@ namespace MapView
             viewPort1.SetWorld(world);
             miniMap1.World = world;
 
-            GetAvailableUnit();
+            NextAvailableUnit();
 
         }
 
