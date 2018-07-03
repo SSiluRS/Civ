@@ -100,12 +100,15 @@ namespace MapView
             if (command == Command.Move)
             {
                 var moveResult = GameModel.World.moveUnit(world, activeUnit, loc.Item1 + dx, loc.Item2 + dy);
-                UpdateWorld(moveResult.Item1);
-                activeUnit = moveResult.Item2.Value;
-                if (activeUnit.unitClass.mov == activeUnit.movesMade)
+                UpdateWorld(moveResult.Item1);                
+                if (moveResult.Item2 != null)
                 {
-                    NextAvailableUnit();
-                    viewPort1.BlinkUnit(activeUnit);
+                    activeUnit = moveResult.Item2.Value;
+                    if (activeUnit.unitClass.mov == activeUnit.movesMade)
+                    {
+                        NextAvailableUnit();
+                        viewPort1.BlinkUnit(activeUnit);
+                    }
                 }
             }
             else if (command == Command.BuildCity)
@@ -180,6 +183,7 @@ namespace MapView
         {
             this.world = world;
             viewPort1.SetWorld(world);
+            
             miniMap1.World = world;
 
             NextAvailableUnit();
@@ -207,8 +211,8 @@ namespace MapView
 
         public void ChangeAdvance()
         {
-            if (changedAdvance == world.playerList[0].currentlyDiscovering) return;
-            UpdateWorld(GameModel.World.changeResearch(world, world.playerList[0], changedAdvance));           
+            if (changedAdvance == world.playerList[world.currentPlayer].currentlyDiscovering) return;
+            UpdateWorld(GameModel.World.changeResearch(world, world.playerList[world.currentPlayer], changedAdvance));           
         }
         public void ChangeBuilding()
         {

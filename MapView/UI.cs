@@ -65,12 +65,16 @@ namespace MapView
                 i.Tag = b;
                 i.Group = listView2.Groups["BuildingsGroup"];
             }
+            var m = listView2.Items.Add("TradeGoods");
+            m.Tag = City.CurrentlyBuilding.TradeGoods;
+            m.Group = listView2.Groups["TradeGoodsGroup"];
+            
             var canCreate = Utils.allowedUnits(civ.discoveries);
             foreach (var u in canCreate)
             {
                 var i = listView2.Items.Add(u.name);
                 i.Tag = u;
-                i.Group = listView2.Groups["UnitsGroups"];
+                i.Group = listView2.Groups["UnitsGroup"];
             }
         }
 
@@ -134,21 +138,20 @@ namespace MapView
             this.DialogResult = DialogResult.OK;
         }
 
-        private void listBox2_SelectedValueChanged(object sender, EventArgs e)
-        {
-        }
-
         private void listView2_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listView2.SelectedIndices.Count == 0) return;
             var b = listView2.SelectedItems[0].Tag as Buildings.Building;
             var u = listView2.SelectedItems[0].Tag as Units.UnitClass;
-
-            ActiveBuilding =
-                b is null ?
-                City.CurrentlyBuilding.NewUnit(u) :
-                City.CurrentlyBuilding.NewBuilding(b);
-            label2.Text = ActiveBuilding.ToString();
+            var t = listView2.SelectedItems[0].Tag;
+            if (t == City.CurrentlyBuilding.TradeGoods)
+                ActiveBuilding = City.CurrentlyBuilding.TradeGoods;
+            else
+                ActiveBuilding =
+                    b is null ?
+                    City.CurrentlyBuilding.NewUnit(u) :
+                    City.CurrentlyBuilding.NewBuilding(b);
+            label1.Text = ActiveBuilding.ToString();
 
         }
     }

@@ -42,6 +42,8 @@ namespace MapView
         bool blink = true;
         GameModel.Unit.Unit blinkingUnit = null;
 
+        int currentPlayer;
+
         Bitmap unitTiles;
 
         int tileSize = MapRenderer.tileSize;
@@ -62,6 +64,8 @@ namespace MapView
         {
             mapRenderer = new MapRenderer(this.ClientSize.Width, this.ClientSize.Height, world);
             this.world = world;
+            currentPlayer = world.currentPlayer;
+            drawCell = false;
             //fogOfWar = world.playerList[world.currentPlayer].fogOfWar;
             Invalidate();
         }
@@ -85,6 +89,9 @@ namespace MapView
             {
                 foreach (var city in player.cities)
                 {
+                    var cityC = city.Key.Item1;
+                    var cityR = city.Key.Item2;
+                    if (player == world.playerList[world.currentPlayer] || world.playerList[currentPlayer].fogOfWar.ContainsKey(Tuple.Create(cityC, cityR)))
                     pe.Graphics.FillRectangle(Brushes.Gray, new Rectangle(city.Key.Item1 * tileSize - x, city.Key.Item2 * tileSize - y, tileSize, tileSize));
                 }
             }            
@@ -105,7 +112,7 @@ namespace MapView
                         ? u.Value.units.FirstOrDefault(uu => uu.ID == blinkingUnit.ID)
                         : null
                     ) ?? u.Value.units.First();
-                var a = GameModel.World.getCivByUnit(world, unit) == world.playerList[world.currentPlayer];
+                var a = GameModel.World.getCivByUnit(world, unit) == world.playerList[currentPlayer];
                 if (
                     (
                         blinkingUnit == null 
@@ -113,7 +120,7 @@ namespace MapView
                         || blink
                     )
                     && CheckUnit(c, r) 
-                    && (a || (!a && world.playerList[world.currentPlayer].fogOfWar.ContainsKey(World.getUnitLoc(world, unit)))))
+                    && (a || (!a && world.playerList[currentPlayer].fogOfWar.ContainsKey(World.getUnitLoc(world, unit)))))
                 {
                     pe.Graphics.FillRectangle(a ? Brushes.White : Brushes.Red, new Rectangle(c * tileSize - x, r * tileSize - y, tileSize, tileSize));
                     var dest = new Rectangle(c * tileSize - x, r * tileSize - y, tileSize, tileSize);
@@ -129,8 +136,13 @@ namespace MapView
         {
             if (uc == Units.Settlers)
                 return new Rectangle(0, 0, 64, 64);
-            else
+            else if (uc == Units.Militia)
                 return new Rectangle(64, 0, 64, 64);
+            else if (uc == Units.Phalanx)
+                return new Rectangle(128, 0, 64, 64);
+            else if (uc == Units.Legion)
+                return new Rectangle(192, 0, 64, 64);
+            else return new Rectangle(256, 0, 64, 64);
         }
 
         public bool CheckUnit(int c, int r)

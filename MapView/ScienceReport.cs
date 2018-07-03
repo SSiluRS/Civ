@@ -15,7 +15,7 @@ namespace MapView
         GameModel.World.World world;
         GameModel.Civilization.Civilization civ
         {
-            get => world.playerList[0];
+            get => world.playerList[world.currentPlayer];
         }
 
         public ScienceReport()

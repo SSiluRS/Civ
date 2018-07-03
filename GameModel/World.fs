@@ -157,7 +157,7 @@ module World =
                ((getUnitMovement unit.unitClass - unit.movesMade) < (getMovementCost (world.worldMap.Item (c,r)) unit)) || 
                (fst (fst unit.roadInfo) = true) then ( { world with playerList = newCivsNoMoves }, Some(unit))
             else if List.length pack.units >= 1 && (getCivByUnit world pack.units.[0]) = (getCivByUnit world unit) || List.length pack.units = 0 then newWorld 
-            else attackMove { world with playerList = newCivsNoMoves } unit (world.units.Item (c,r)).units
+            else if unit.unitClass = Units.Settlers then ( { world with playerList = newCivsNoMoves }, Some(unit)) else attackMove { world with playerList = newCivsNoMoves } unit (world.units.Item (c,r)).units
 
         | None -> 
             if (world.worldMap.Item (c,r) = LandTerrain.Ocean) || 
